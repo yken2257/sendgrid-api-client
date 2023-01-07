@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -23,6 +24,9 @@ module.exports = {
     ],
   },
   devtool: "eval-source-map",
+  experiments: {
+    topLevelAwait: true,
+  },
   devServer: {
     static: {
       directory: path.join(__dirname, 'dist'),
@@ -31,10 +35,20 @@ module.exports = {
   },
   resolve: {
     extensions: ['.jsx', '.js', '.json'],
+    alias: {
+      http: 'stream-http',
+      https: 'https-browserify'
+    }
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/index.html',
+    }),
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
     }),
   ],
 };
