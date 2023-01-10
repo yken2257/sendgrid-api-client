@@ -30,7 +30,9 @@ export default function RequestForm(props) {
   const headers = props.request.headers;
   const queryParams = props.request.queryParams;
   const bodyInput = props.request.bodyInput;
+  const [activeTab, setActiveTab] = React.useState("header")
   const [preferences, setPreferences] = React.useState(undefined);
+  const [editorHeight, setEditorHeight] = React.useState();
 
   let badgeColor = null;
   switch (props.request.method.value) {
@@ -55,6 +57,10 @@ export default function RequestForm(props) {
       props.onRequestChange("isBodyValid", false);
     }
   }, [bodyInput]);
+
+  useEffect(()=> {
+    setActiveTab("header");
+  }, [api]);
 
   const handleBodyChange = (event) => {
     props.onRequestChange("bodyInput", event.detail.value);
@@ -135,19 +141,118 @@ export default function RequestForm(props) {
     </>
   );
 
+  const isPathParamFilled = pathParams => {
+    if (pathParams.length === 0) {
+      return true;
+    } else if (pathParams.every(item => item.value !== "")) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   const submitButton = () => (
     <Box float="right">
       <form onSubmit={handleSubmit}>
         <Button
           type="submit"
           variant="primary"
-          disabled={!(props.request.isUrlValid && props.request.isBodyValid)}
+          disabled={!(props.request.isUrlValid && props.request.isBodyValid && isPathParamFilled(props.request.pathParam))}
         >
           Submit
         </Button>
       </form>
     </Box>
   );
+
+  const paramTabs = [
+    {
+      label: "HEADER",
+      id: "header",
+      content: (
+        <SpaceBetween size="xs">
+          {paramsForm(headers, "headers")}
+          {addButton(headers, "headers")}
+          {submitButton()}
+        </SpaceBetween>
+      )
+    }
+  ];
+  if (props.request.queryParams.length > 0) {
+    paramTabs.push({
+      label: "QUERY",
+      id: "query",
+      content: (
+        <SpaceBetween size="xs">
+          {paramsForm(queryParams, "queryParams")}
+          {addButton(queryParams, "queryParams")}
+          {submitButton()}
+        </SpaceBetween>
+      )
+    });  
+  }
+  if (props.request.pathParam.length > 0) {
+    paramTabs.push({
+      label: "PATH",
+      id: "path",
+      content: (
+        <SpaceBetween size="xs">
+          <SpaceBetween size="s" direction="horizontal">
+            <Input
+              readOnly
+              name="name"
+              value={props.request.pathParam[0].name}
+              onChange={handleParamChange(0, props.request.pathParam, "pathParam", false)}
+            />
+            <Input
+              name="value"
+              value={props.request.pathParam[0].value}
+              onChange={handleParamChange(0, props.request.pathParam, "pathParam", true)}
+            />
+          </SpaceBetween>
+          {submitButton()}
+        </SpaceBetween>
+      )
+    });
+  }
+  if (props.request.method.value !== "GET" && props.request.method.value !== "DELETE") {
+    paramTabs.push({
+      label: "BODY",
+      id: "body",
+      content: (
+        <SpaceBetween size="xs">
+        <CodeEditor
+          ace={ace}
+          language="json"
+          value={props.request.bodyInput}
+          themes={{ light: ["dawn"], dark: ["tomorrow_night_bright"] }}
+          editorContentHeight={180}
+          onEditorContentResize={({detail}) => setEditorHeight(detail.height)}
+          preferences={preferences}
+          onPreferencesChange={(e) => setPreferences(e.detail)}
+          onDelayedChange={handleBodyChange}
+          i18nStrings={{
+            editorGroupAriaLabel: "Code editor",
+            statusBarGroupAriaLabel: "Status bar",
+            cursorPosition: (row, column) => `Ln ${row}, Col ${column}`,
+            errorsTab: "Errors",
+            warningsTab: "Warnings",
+            preferencesButtonAriaLabel: "Preferences",
+            paneCloseButtonAriaLabel: "Close",
+            preferencesModalHeader: "Preferences",
+            preferencesModalCancel: "Cancel",
+            preferencesModalConfirm: "Confirm",
+            preferencesModalWrapLines: "Wrap lines",
+            preferencesModalTheme: "Theme",
+            preferencesModalLightThemes: "Light themes",
+            preferencesModalDarkThemes: "Dark themes"
+          }}
+        />
+        {submitButton()}
+        </SpaceBetween>
+      )
+    });
+  }
 
   return (
     <SpaceBetween size="xxs">
@@ -178,72 +283,9 @@ export default function RequestForm(props) {
       </Container>
       <Tabs
         variant="container"
-        tabs={[
-          {
-            label: "HEADER",
-            id: "header",
-            content: (
-              <SpaceBetween size="xs">
-                {paramsForm(headers, "headers")}
-                {addButton(headers, "headers")}
-                {submitButton()}
-              </SpaceBetween>
-            )
-          },
-          {
-            label: "QUERY PARAMS",
-            id: "query",
-            content: (
-              <SpaceBetween size="xs">
-                {paramsForm(queryParams, "queryParams")}
-                {addButton(queryParams, "queryParams")}
-                {submitButton()}
-              </SpaceBetween>
-            )
-          },
-          {
-            label: "BODY",
-            id: "body",
-            content: (
-              <SpaceBetween size="xs">
-              <CodeEditor
-                ace={
-                  props.request.method.value === "GET" || props.request.method.value === "DELETE"
-                  ? undefined
-                  : ace
-                }
-                language="json"
-                value={props.request.bodyInput}
-                themes={{ light: ["dawn"], dark: ["tomorrow_night_bright"] }}
-                editorContentHeight={120}
-                //onEditorContentResize={handleBodyChange}
-                preferences={preferences}
-                onPreferencesChange={(e) => setPreferences(e.detail)}
-                onDelayedChange={handleBodyChange}
-                i18nStrings={{
-                  loadingState: "Loading code editor",
-                  errorState: `${props.request.method.value} request must not have body`,
-                  editorGroupAriaLabel: "Code editor",
-                  statusBarGroupAriaLabel: "Status bar",
-                  cursorPosition: (row, column) => `Ln ${row}, Col ${column}`,
-                  errorsTab: "Errors",
-                  warningsTab: "Warnings",
-                  preferencesButtonAriaLabel: "Preferences",
-                  paneCloseButtonAriaLabel: "Close",
-                  preferencesModalHeader: "Preferences",
-                  preferencesModalCancel: "Cancel",
-                  preferencesModalConfirm: "Confirm",
-                  preferencesModalWrapLines: "Wrap lines",
-                  preferencesModalTheme: "Theme",
-                  preferencesModalLightThemes: "Light themes",
-                  preferencesModalDarkThemes: "Dark themes"
-                }}
-              />
-              {submitButton()}
-              </SpaceBetween>
-            )
-          }
-        ]}
+        tabs={paramTabs}
+        activeTabId={activeTab}
+        onChange={({detail}) => setActiveTab(detail.activeTabId)}
       />
     </SpaceBetween>
   );

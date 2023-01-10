@@ -12,11 +12,8 @@ const parsed = await SwaggerParser.validate(sendgrid, {
     spec: false
   }
 });
+
 const api = parsed.paths;
-
-
-//const api = sendgrid["paths"];
-console.log(JSON.stringify(api));
 
 export const apiDetailArray = [];
 for (const path in api) {
@@ -27,7 +24,7 @@ for (const path in api) {
         description: api[path][method]["description"].split("\n")[0],
         path: `https://api.sendgrid.com/v3${path}`, 
         method: method.toUpperCase(), 
-        docPath: `/apiv3/${api[path][method]["operationId"]}`,
+        docPath: `${api[path][method]["operationId"]}`,
          });  
     }
   }

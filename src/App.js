@@ -5,6 +5,7 @@ import {
   AppLayout,
   Autosuggest,
   ContentLayout,
+  Flashbar,
   Header,
   SpaceBetween,
 } from "@cloudscape-design/components";
@@ -20,18 +21,17 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchText, setSearchText] = useState("");
+  const [api, setApi] = useState();
   const [request, setRequest] = useState({
-    urlInput: "https://httpstat.us/200",
-    urlEncoded: "https://httpstat.us/200",
-    method: { value: "POST" },
+    urlInput: "",
+    urlEncoded: "",
+    method: { value: "GET" },
     headers: [
       { name: "Authorization", value: "Bearer API_KEY", included: true },
       { name: "Content-Type", value: "application/json", included: true }
     ],
-    queryParams: [
-      { name: "q", value: "ハロー", included: true },
-      { name: "page", value: "1", included: true }
-    ],
+    queryParams: [],
+    pathParam: [],
     bodyInput: '{ "hoge": "huga" }',
     body: { hoge: "huga" },
     isUrlValid: true,
@@ -45,33 +45,63 @@ export default function App() {
     if (match) {
       const api = apiDetailArray.find(obj => obj.operationId === match[1]);
       let body = {};
-      if ('requestBody' in api) {
-        if ('content' in api.requestBody) {
-          if ("application/json" in api.requestBody.content) {
-            if ('example' in api.requestBody.content["application/json"]) {
-              body = api.requestBody.content["application/json"]["example"]
-            } else if ('example' in api.requestBody.content["application/json"]["schema"]) {
-              if ('schema' in api.requestBody.content["application/json"]) {
-                body = api.requestBody.content["application/json"]["schema"]["example"]
-              }
-            }  
+      if (api) {
+        if ('requestBody' in api && 'content' in api.requestBody && "application/json" in api.requestBody.content) {
+          if ('example' in api.requestBody.content["application/json"]) {
+            body = api.requestBody.content["application/json"]["example"]
+          } else if ('example' in api.requestBody.content["application/json"]["schema"]) {
+            if ('schema' in api.requestBody.content["application/json"]) {
+              body = api.requestBody.content["application/json"]["schema"]["example"]
+            }
           }  
         }
+        const queries = [];
+        const pathParam = [];
+        const headers = [
+          { name: "Authorization", value: "Bearer API_KEY", included: true },
+          { name: "Content-Type", value: "application/json", included: true }    
+        ];
+        if ('parameters' in api) {
+          api.parameters.forEach((param) => {
+            if (param.in === 'query') {
+              queries.push({
+                name: param.name,
+                value: 'example' in param ? param.example : "",
+                included: ('required' in param && param.required)
+              });
+            } else if (param.in === 'header') {
+              headers.push({
+                name: param.name,
+                value: 'example' in param ? param.example : "",
+                included: ('required' in param && param.required)
+              });
+            }
+          })
+        }
+        const hasPathParam = api.path.match(/{(.*?)}/);
+        if (hasPathParam) {
+          pathParam.push({
+            name: hasPathParam[1],
+            value: ""
+          });
+        }
+        setApi(api);
+        setRequest((prevRequest) => ({
+          ...prevRequest,
+          urlInput: api.path,
+          method: {value: api.method},
+          headers: headers,
+          queryParams: queries,
+          pathParam: pathParam,
+          bodyInput: JSON.stringify(body, null, 2)
+        }));
       }
-      setRequest((prevRequest) => ({
-        ...prevRequest,
-        urlInput: api.path,
-        method: {value: api.method},
-        queryParams: [],
-        bodyInput: JSON.stringify(body, null, 2)
-      }));
     }
   }, [location.pathname]);
 
   useEffect(() => {
     try {
       const oldUrl = new URL(request.urlInput);
-      const newUrl = new URL(`${oldUrl.origin}${oldUrl.pathname}`);
       const searchParams = new URLSearchParams({});
       request.queryParams.forEach((queryObj) => {
         if (
@@ -82,10 +112,18 @@ export default function App() {
           searchParams.set(queryObj.name, queryObj.value);
         }
       });
+      oldUrl.seach = searchParams;
+      let replacedPath = oldUrl.pathname;
+      if (request.pathParam.length > 0) {
+        request.pathParam.map((path) => {
+          replacedPath = replacedPath.replace(`%7B${path.name}%7D`, path.value)
+        });
+      }  
+      const newUrl = new URL(`${oldUrl.origin}${replacedPath}`);
       newUrl.search = searchParams;
       setRequest((prevRequest) => ({
         ...prevRequest,
-        urlInput: decodeURIComponent(newUrl),
+        urlInput: decodeURIComponent(oldUrl),
         urlEncoded: newUrl,
         isUrlValid: true
       }));
@@ -95,7 +133,7 @@ export default function App() {
         isUrlValid: false
       }));
     }
-  }, [request.urlInput, request.queryParams]);
+  }, [request.urlInput, request.queryParams, request.pathParam]);
 
   const handleSelect = ({detail}) => {
     const selected = apiSearchItemsArray.find(obj => obj.value === detail.value);
@@ -143,7 +181,7 @@ export default function App() {
   const ApiContent = apiDetailArray.map((api) =>
     <Route 
       key={api.operationId}
-      exact path={api.docPath} 
+      path={api.docPath} 
       element={
         <SpaceBetween size="l">
           <RequestForm
@@ -153,7 +191,7 @@ export default function App() {
             onSubmitRequest={handleSubmit}
           />
             {response && <ResponseContainer response={response} />}
-          <DebugContainer request={request} />
+          <DebugContainer request={request} api={api}/>
         </SpaceBetween>
       }
     />
@@ -170,6 +208,18 @@ export default function App() {
         <DebugContainer request={request} />
       </SpaceBetween>
     );
+  
+  const NotFound = (
+    <Flashbar
+      items={[{
+      header: "Not Found",
+      type: "error",
+      content: "Failed to load data",
+      dismissible: false,
+      id: "not_found"
+      }]}
+    />
+  );
 
   return (
     <AppLayout
@@ -203,8 +253,12 @@ export default function App() {
           }
         >
           <Routes>
-            {ApiContent}
-            <Route exact path="/custom" element={CustomRequestContent} />
+            <Route path="/" element={<></>} />
+            <Route path="custom" element={CustomRequestContent} />
+            <Route path="apiv3/">
+              {ApiContent}
+            </Route>
+            <Route path="*" element={NotFound} />
           </Routes>
         </ContentLayout>
       }
