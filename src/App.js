@@ -27,8 +27,8 @@ export default function App() {
     urlEncoded: "",
     method: { value: "GET" },
     headers: [
-      { name: "Authorization", value: "Bearer API_KEY", included: true },
-      { name: "Content-Type", value: "application/json", included: true }
+      { name: "Authorization", value: "Bearer API_KEY", included: true, canEditKey: true, canDelete: true },
+      { name: "Content-Type", value: "application/json", included: true, canEditKey: true, canDelete: true }
     ],
     queryParams: [],
     pathParam: [],
@@ -58,8 +58,8 @@ export default function App() {
         const queries = [];
         const pathParam = [];
         const headers = [
-          { name: "Authorization", value: "Bearer API_KEY", included: true },
-          { name: "Content-Type", value: "application/json", included: true }    
+          { name: "Authorization", value: "Bearer API_KEY", included: true, canEditKey: false, canDelete: true},
+          { name: "Content-Type", value: "application/json", included: true, canEditKey: false, canDelete: true }    
         ];
         if ('parameters' in api) {
           api.parameters.forEach((param) => {
@@ -67,14 +67,22 @@ export default function App() {
               queries.push({
                 name: param.name,
                 value: 'example' in param ? param.example : "",
-                included: ('required' in param && param.required)
+                included: ('required' in param && param.required),
+                canEditKey: false,
+                canDelete: false,
+                description: 'description' in param ? param.description : null
               });
             } else if (param.in === 'header') {
-              headers.push({
-                name: param.name,
-                value: 'example' in param ? param.example : "",
-                included: ('required' in param && param.required)
-              });
+              if (param.name !== 'Authorization') {
+                headers.push({
+                  name: param.name,
+                  value: 'example' in param ? param.example : "",
+                  included: ('required' in param && param.required),
+                  canEditKey: false,
+                  canDelete: false,
+                  description: 'description' in param ? param.description : null
+                });  
+              }
             }
           })
         }
@@ -112,7 +120,7 @@ export default function App() {
           searchParams.set(queryObj.name, queryObj.value);
         }
       });
-      oldUrl.seach = searchParams;
+      oldUrl.search = searchParams;
       let replacedPath = oldUrl.pathname;
       if (request.pathParam.length > 0) {
         request.pathParam.map((path) => {

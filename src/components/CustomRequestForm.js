@@ -119,10 +119,12 @@ export default function RequestForm(props) {
   const paramsForm = (param, param_name) =>
     param.map((pair, index) => (
       <SpaceBetween key={index} size="s" direction="horizontal">
-        <Checkbox
-          checked={pair.included}
-          onChange={handleParamInclude(index, param, param_name)}
-        />
+        <div style={{position: "relative", top: 6}}>
+          <Checkbox
+            checked={pair.included}
+            onChange={handleParamInclude(index, param, param_name)}
+          />
+        </div>
         <Input
           name="name"
           value={pair.name}

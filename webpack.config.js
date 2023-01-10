@@ -32,6 +32,7 @@ module.exports = {
       directory: path.join(__dirname, 'dist'),
     },
     port: 3000,
+    allowedHosts: ['.gitpod.io']
   },
   resolve: {
     extensions: ['.jsx', '.js', '.json'],

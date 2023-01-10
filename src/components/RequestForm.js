@@ -18,6 +18,7 @@ import {
   Grid,
   Header,
   Input,
+  Popover,
   SpaceBetween,
   Tabs
 } from "@cloudscape-design/components";
@@ -96,7 +97,7 @@ export default function RequestForm(props) {
 
   const handleParamAdd = (param, param_name) => {
     const keyValuePairs = [...param];
-    keyValuePairs.push({ name: "", value: "", included: true });
+    keyValuePairs.push({ name: "", value: "", included: true, canEditKey: true, canDelete: true });
     props.onRequestChange(param_name, keyValuePairs);
   };
 
@@ -108,12 +109,13 @@ export default function RequestForm(props) {
     param.map((pair, index) => (
       <SpaceBetween key={index} size="s" direction="horizontal">
         <div style={{position: "relative", top: 6}}>
-        <Checkbox
-          checked={pair.included}
-          onChange={handleParamInclude(index, param, param_name)}
-        />
+          <Checkbox
+            checked={pair.included}
+            onChange={handleParamInclude(index, param, param_name)}
+          />
         </div>
         <Input
+          readOnly={!pair.canEditKey}
           name="name"
           value={pair.name}
           onChange={handleParamChange(index, param, param_name, false)}
@@ -123,11 +125,25 @@ export default function RequestForm(props) {
           value={pair.value}
           onChange={handleParamChange(index, param, param_name, true)}
         />
-        <Button
-          iconName="status-negative"
-          variant="icon"
-          onClick={handleParamRemove(index, param, param_name)}
-        />
+        {pair.canDelete && 
+          <Button
+            iconName="status-negative"
+            variant="icon"
+            onClick={handleParamRemove(index, param, param_name)}
+          />
+        }
+        {pair.description &&
+          <Popover
+          position="right"
+          size="small"
+          triggerType="custom"
+          content={pair.description}
+        >
+          <div style={{position: "relative", top: 5, left: 2}}>
+            <Button iconName="status-info" variant="inline-icon" />
+          </div>
+        </Popover>
+        }
       </SpaceBetween>
     ));
 
