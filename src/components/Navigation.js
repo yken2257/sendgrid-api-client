@@ -14,13 +14,13 @@ export default function Navigation() {
         {
           type: "link",
           text: "Notifications",
-          href: "#/notifications",
+          href: "#/",
           info: <Badge color="red">23</Badge>
         },
         {
           type: "link",
           text: "Documentation",
-          href: "https://example.com",
+          href: "https://docs.sendgrid.com/api-reference",
           external: true
         }
       ]}
