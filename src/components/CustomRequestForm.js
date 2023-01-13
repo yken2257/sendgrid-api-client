@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
+import AceEditor from 'react-ace';
 import ace from "ace-builds/src-noconflict/ace";
 import 'ace-builds/webpack-resolver'
+import "ace-builds/src-noconflict/theme-textmate";
 import "ace-builds/src-noconflict/theme-dawn";
 import "ace-builds/src-noconflict/theme-tomorrow_night_bright";
+import "ace-builds/src-noconflict/mode-sh";
 import "ace-builds/src-noconflict/mode-json";
 import "ace-builds/src-noconflict/worker-json";
 import "ace-builds/css/ace.css";
@@ -153,13 +156,15 @@ export default function RequestForm(props) {
     </>
   );
 
+  const canSubmit = (props.request.isUrlValid && props.request.isBodyValid);
+
   const submitButton = () => (
     <Box float="right">
       <form onSubmit={handleSubmit}>
         <Button
           type="submit"
           variant="primary"
-          disabled={!(props.request.isUrlValid && props.request.isBodyValid)}
+          disabled={!canSubmit}
         >
           Submit
         </Button>
@@ -168,7 +173,7 @@ export default function RequestForm(props) {
   );
 
   return (
-    <SpaceBetween size="xxs">
+    <SpaceBetween size="xs">
       <Container
       header={
           <Header
@@ -198,74 +203,112 @@ export default function RequestForm(props) {
           />
         </Grid>
       </Container>
-      <Tabs
-        variant="container"
-        tabs={[
-          {
-            label: "HEADER",
-            id: "header",
-            content: (
-              <SpaceBetween size="xs">
-                {paramsForm(headers, "headers")}
-                {addButton(headers, "headers")}
-                {submitButton()}
-              </SpaceBetween>
-            )
-          },
-          {
-            label: "QUERY PARAMS",
-            id: "query",
-            content: (
-              <SpaceBetween size="xs">
-                {paramsForm(queryParams, "queryParams")}
-                {addButton(queryParams, "queryParams")}
-                {submitButton()}
-              </SpaceBetween>
-            )
-          },
-          {
-            label: "BODY",
-            id: "body",
-            content: (
-              <SpaceBetween size="xs">
-              <CodeEditor
-                ace={
-                  props.request.method.value === "GET" || props.request.method.value === "DELETE"
-                  ? undefined
-                  : ace
-                }
-                language="json"
-                value={props.request.bodyInput}
-                themes={{ light: ["dawn"], dark: ["tomorrow_night_bright"] }}
-                editorContentHeight={120}
-                onEditorContentResize={({detail}) => setEditorHeight(detail.height)}
-                preferences={preferences}
-                onPreferencesChange={(e) => setPreferences(e.detail)}
-                onDelayedChange={handleBodyChange}
-                i18nStrings={{
-                  errorState: `${props.request.method.value} request must not have body`,
-                  editorGroupAriaLabel: "Code editor",
-                  statusBarGroupAriaLabel: "Status bar",
-                  cursorPosition: (row, column) => `Ln ${row}, Col ${column}`,
-                  errorsTab: "Errors",
-                  warningsTab: "Warnings",
-                  preferencesButtonAriaLabel: "Preferences",
-                  paneCloseButtonAriaLabel: "Close",
-                  preferencesModalHeader: "Preferences",
-                  preferencesModalCancel: "Cancel",
-                  preferencesModalConfirm: "Confirm",
-                  preferencesModalWrapLines: "Wrap lines",
-                  preferencesModalTheme: "Theme",
-                  preferencesModalLightThemes: "Light themes",
-                  preferencesModalDarkThemes: "Dark themes"
-                }}
-              />
-              {submitButton()}
-              </SpaceBetween>
-            )
-          }
+      <Grid
+        gridDefinition={[
+          { colspan: { default: 12, xxs: 6 } },
+          { colspan: { default: 12, xxs: 6 } }
         ]}
-      />
+      >
+        <Tabs
+          variant="container"
+          tabs={[
+            {
+              label: "HEADER",
+              id: "header",
+              content: (
+                <SpaceBetween size="xs">
+                  {paramsForm(headers, "headers")}
+                  {addButton(headers, "headers")}
+                  {submitButton()}
+                </SpaceBetween>
+              )
+            },
+            {
+              label: "QUERY PARAMS",
+              id: "query",
+              content: (
+                <SpaceBetween size="xs">
+                  {paramsForm(queryParams, "queryParams")}
+                  {addButton(queryParams, "queryParams")}
+                  {submitButton()}
+                </SpaceBetween>
+              )
+            },
+            {
+              label: "BODY",
+              id: "body",
+              content: (
+                <SpaceBetween size="xs">
+                <CodeEditor
+                  ace={
+                    props.request.method.value === "GET" || props.request.method.value === "DELETE"
+                    ? undefined
+                    : ace
+                  }
+                  language="json"
+                  value={props.request.bodyInput}
+                  themes={{ light: ["dawn"], dark: ["tomorrow_night_bright"] }}
+                  editorContentHeight={120}
+                  onEditorContentResize={({detail}) => setEditorHeight(detail.height)}
+                  preferences={preferences}
+                  onPreferencesChange={(e) => setPreferences(e.detail)}
+                  onDelayedChange={handleBodyChange}
+                  i18nStrings={{
+                    errorState: `${props.request.method.value} request must not have body`,
+                    editorGroupAriaLabel: "Code editor",
+                    statusBarGroupAriaLabel: "Status bar",
+                    cursorPosition: (row, column) => `Ln ${row}, Col ${column}`,
+                    errorsTab: "Errors",
+                    warningsTab: "Warnings",
+                    preferencesButtonAriaLabel: "Preferences",
+                    paneCloseButtonAriaLabel: "Close",
+                    preferencesModalHeader: "Preferences",
+                    preferencesModalCancel: "Cancel",
+                    preferencesModalConfirm: "Confirm",
+                    preferencesModalWrapLines: "Wrap lines",
+                    preferencesModalTheme: "Theme",
+                    preferencesModalLightThemes: "Light themes",
+                    preferencesModalDarkThemes: "Dark themes"
+                  }}
+                />
+                {submitButton()}
+                </SpaceBetween>
+              )
+            }
+          ]}
+        />
+        <Container
+          header={
+            <Header
+              variant="h3"
+              actions={
+                <Button
+                  iconAlign="left"
+                  iconName="copy"
+                  disabled={!canSubmit}
+                >
+                  Copy code
+                </Button>
+              }
+            >
+              cURL example
+            </Header>
+          }
+        >
+          <AceEditor
+            mode="sh"
+            theme="textmate"
+            value={props.request.curl}
+            width={null}
+            maxLines={10}
+            showGutter={false}
+            highlightActiveLine={false}
+            readOnly={true}
+            showPrintMargin={false}
+            enableBasicAutocompletion={false}
+          />
+        </Container>
+      </Grid>
     </SpaceBetween>
   );
 }

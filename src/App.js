@@ -34,6 +34,7 @@ export default function App() {
     pathParam: [],
     bodyInput: '{ "hoge": "huga" }',
     body: { hoge: "huga" },
+    curl: "",
     isUrlValid: true,
     isBodyValid: true
   });
@@ -129,9 +130,19 @@ export default function App() {
       }  
       const newUrl = new URL(`${oldUrl.origin}${replacedPath}`);
       newUrl.search = searchParams;
+
+      let curl = `curl -i --request ${request.method.value} \\\n--url ${newUrl} \\\n`;
+      for (const header of request.headers) {
+        if (header.included) {
+          curl += `--header ${header.name}: ${header.value} \\\n`
+        }
+      }
+      curl += `--data '${request.bodyInput}'` 
+
       setRequest((prevRequest) => ({
         ...prevRequest,
         urlInput: decodeURIComponent(oldUrl),
+        curl: curl,
         urlEncoded: newUrl,
         isUrlValid: true
       }));

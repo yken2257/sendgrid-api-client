@@ -1,8 +1,11 @@
 import React, { useEffect } from "react";
+import AceEditor from 'react-ace';
 import ace from "ace-builds/src-noconflict/ace";
 import 'ace-builds/webpack-resolver'
+import "ace-builds/src-noconflict/theme-textmate";
 import "ace-builds/src-noconflict/theme-dawn";
 import "ace-builds/src-noconflict/theme-tomorrow_night_bright";
+import "ace-builds/src-noconflict/mode-sh";
 import "ace-builds/src-noconflict/mode-json";
 import "ace-builds/src-noconflict/worker-json";
 import "ace-builds/css/ace.css";
@@ -167,13 +170,15 @@ export default function RequestForm(props) {
     }
   }
 
+  const canSubmit = (props.request.isUrlValid && props.request.isBodyValid && isPathParamFilled(props.request.pathParam))
+
   const submitButton = () => (
     <Box float="right">
       <form onSubmit={handleSubmit}>
         <Button
           type="submit"
           variant="primary"
-          disabled={!(props.request.isUrlValid && props.request.isBodyValid && isPathParamFilled(props.request.pathParam))}
+          disabled={!canSubmit}
         >
           Submit
         </Button>
@@ -271,16 +276,17 @@ export default function RequestForm(props) {
   }
 
   return (
-    <SpaceBetween size="xxs">
+    <SpaceBetween size="xs">
       <Container
-      header={
-          <Header
-            variant="h2"
-            description={api.description}
-          >
-            {api.summary}
-          </Header>
-      }>
+        header={
+            <Header
+              variant="h2"
+              description={api.description}
+            >
+              {api.summary}
+            </Header>
+        }
+      >
         <Grid gridDefinition={[{ colspan: 0 }, { colspan: 9 }]}>
           <div style={{position: "relative", top: 6}}>
             <Badge {...badgeColor}>
@@ -297,12 +303,50 @@ export default function RequestForm(props) {
           />
         </Grid>
       </Container>
-      <Tabs
-        variant="container"
-        tabs={paramTabs}
-        activeTabId={activeTab}
-        onChange={({detail}) => setActiveTab(detail.activeTabId)}
-      />
+      <Grid
+        gridDefinition={[
+          { colspan: { default: 12, xxs: 6 } },
+          { colspan: { default: 12, xxs: 6 } }
+        ]}
+      >
+        <Tabs
+          variant="container"
+          tabs={paramTabs}
+          activeTabId={activeTab}
+          onChange={({detail}) => setActiveTab(detail.activeTabId)}
+        />
+        <Container
+          header={
+            <Header
+              variant="h3"
+              actions={
+                <Button
+                  iconAlign="left"
+                  iconName="copy"
+                  disabled={!canSubmit}
+                >
+                  Copy code
+                </Button>
+              }
+            >
+              cURL example
+            </Header>
+          }
+        >
+          <AceEditor
+            mode="sh"
+            theme="textmate"
+            value={props.request.curl}
+            width={null}
+            maxLines={10}
+            showGutter={false}
+            highlightActiveLine={false}
+            readOnly={true}
+            showPrintMargin={false}
+            enableBasicAutocompletion={false}
+          />
+        </Container>
+    </Grid>
     </SpaceBetween>
   );
 }
