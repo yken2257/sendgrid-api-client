@@ -210,7 +210,7 @@ export default function App() {
             onSubmitRequest={handleSubmit}
           />
             {response && <ResponseContainer response={response} />}
-          {process.env.ENV === "dev" && <DebugContainer request={request} api={api}/>}
+          {/* {process.env.ENV === "dev" && <DebugContainer request={request} api={api}/>} */}
         </SpaceBetween>
       }
     />
@@ -224,7 +224,7 @@ export default function App() {
           onSubmitRequest={handleSubmit}
         />
           {response && <ResponseContainer response={response} />}
-        {process.env.ENV === "dev" && <DebugContainer request={request} /> }
+        {/* {process.env.ENV === "dev" && <DebugContainer request={request} /> } */}
       </SpaceBetween>
     );
   
