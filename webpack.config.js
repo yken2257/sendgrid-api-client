@@ -1,10 +1,10 @@
 const path = require('path');
 const webpack = require('webpack');
-const dotenv = require('dotenv');
+// const dotenv = require('dotenv');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = () => {
-  const env = dotenv.config().parsed;
+  // const env = dotenv.config().parsed;
    return {
     mode: 'production',
     entry: './src/index.js',
@@ -48,9 +48,9 @@ module.exports = () => {
       new HtmlWebpackPlugin({
         template: './src/index.html',
       }),
-      new webpack.DefinePlugin({
-        'process.env': JSON.stringify(env)
-      }),
+      // new webpack.DefinePlugin({
+      //   'process.env': JSON.stringify(env)
+      // }),
       new webpack.ProvidePlugin({
         process: 'process/browser',
       }),
