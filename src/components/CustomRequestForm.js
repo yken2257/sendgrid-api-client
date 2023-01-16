@@ -20,8 +20,10 @@ import {
   Grid,
   Header,
   Input,
+  Popover,
   Select,
   SpaceBetween,
+  StatusIndicator,
   Tabs
 } from "@cloudscape-design/components";
   
@@ -31,18 +33,9 @@ ace.config.set("loadWorkerFromBlob", false);
 export default function RequestForm(props) {
   const headers = props.request.headers;
   const queryParams = props.request.queryParams;
-  const bodyInput = props.request.bodyInput;
+  const [activeTab, setActiveTab] = React.useState("header");
   const [preferences, setPreferences] = React.useState(undefined);
   const [editorHeight, setEditorHeight] = React.useState();
-
-  useEffect(() => {
-    try {
-      JSON.parse(bodyInput);
-      props.onRequestChange("isBodyValid", true);
-    } catch (e) {
-      props.onRequestChange("isBodyValid", false);
-    }
-  }, [bodyInput]);
 
   const handleUrlChange = ({ detail }) => {
     props.onRequestChange("urlInput", detail.value);
@@ -73,16 +66,7 @@ export default function RequestForm(props) {
   const handleMethodChange = (event) => {
     props.onRequestChange("method", event.detail.selectedOption);
     if (event.detail.selectedOption.value === "GET" || event.detail.selectedOption.value === "DELETE") {
-      props.onRequestChange("bodyInput", JSON.stringify(props.request.body, null, 4));
-    }
-  };
-
-  const handleBodyChange = (event) => {
-    props.onRequestChange("bodyInput", event.detail.value);
-    try {
-      const parsed = JSON.parse(event.detail.value);
-      props.onRequestChange("body", parsed);
-    } catch (e) {
+      setActiveTab("header");
     }
   };
 
@@ -172,6 +156,71 @@ export default function RequestForm(props) {
     </Box>
   );
 
+  const paramTabs = [
+    {
+      label: "HEADER",
+      id: "header",
+      content: (
+        <SpaceBetween size="xs">
+          {paramsForm(headers, "headers")}
+          {addButton(headers, "headers")}
+          {submitButton()}
+        </SpaceBetween>
+      )
+    },
+    {
+      label: "QUERY PARAMS",
+      id: "query",
+      content: (
+        <SpaceBetween size="xs">
+          {paramsForm(queryParams, "queryParams")}
+          {addButton(queryParams, "queryParams")}
+          {submitButton()}
+        </SpaceBetween>
+      )
+    }
+  ];
+
+  if (props.request.method.value !== "GET" && props.request.method.value !== "DELETE") {
+    paramTabs.push({
+      label: "BODY",
+      id: "body",
+      content: (
+        <SpaceBetween size="xs">
+        <CodeEditor
+          ace={ace}
+          language="json"
+          value={props.request.bodyInput}
+          themes={{ light: ["dawn"], dark: ["tomorrow_night_bright"] }}
+          editorContentHeight={120}
+          onEditorContentResize={({detail}) => setEditorHeight(detail.height)}
+          preferences={preferences}
+          onPreferencesChange={(e) => setPreferences(e.detail)}
+          onDelayedChange={props.onBodyChange}
+          i18nStrings={{
+            errorState: `${props.request.method.value} request must not have body`,
+            editorGroupAriaLabel: "Code editor",
+            statusBarGroupAriaLabel: "Status bar",
+            cursorPosition: (row, column) => `Ln ${row}, Col ${column}`,
+            errorsTab: "Errors",
+            warningsTab: "Warnings",
+            preferencesButtonAriaLabel: "Preferences",
+            paneCloseButtonAriaLabel: "Close",
+            preferencesModalHeader: "Preferences",
+            preferencesModalCancel: "Cancel",
+            preferencesModalConfirm: "Confirm",
+            preferencesModalWrapLines: "Wrap lines",
+            preferencesModalTheme: "Theme",
+            preferencesModalLightThemes: "Light themes",
+            preferencesModalDarkThemes: "Dark themes"
+          }}
+        />
+        {submitButton()}
+        </SpaceBetween>
+      )
+    });
+  }
+
   return (
     <SpaceBetween size="xs">
       <Container
@@ -211,84 +260,31 @@ export default function RequestForm(props) {
       >
         <Tabs
           variant="container"
-          tabs={[
-            {
-              label: "HEADER",
-              id: "header",
-              content: (
-                <SpaceBetween size="xs">
-                  {paramsForm(headers, "headers")}
-                  {addButton(headers, "headers")}
-                  {submitButton()}
-                </SpaceBetween>
-              )
-            },
-            {
-              label: "QUERY PARAMS",
-              id: "query",
-              content: (
-                <SpaceBetween size="xs">
-                  {paramsForm(queryParams, "queryParams")}
-                  {addButton(queryParams, "queryParams")}
-                  {submitButton()}
-                </SpaceBetween>
-              )
-            },
-            {
-              label: "BODY",
-              id: "body",
-              content: (
-                <SpaceBetween size="xs">
-                <CodeEditor
-                  ace={
-                    props.request.method.value === "GET" || props.request.method.value === "DELETE"
-                    ? undefined
-                    : ace
-                  }
-                  language="json"
-                  value={props.request.bodyInput}
-                  themes={{ light: ["dawn"], dark: ["tomorrow_night_bright"] }}
-                  editorContentHeight={120}
-                  onEditorContentResize={({detail}) => setEditorHeight(detail.height)}
-                  preferences={preferences}
-                  onPreferencesChange={(e) => setPreferences(e.detail)}
-                  onDelayedChange={handleBodyChange}
-                  i18nStrings={{
-                    errorState: `${props.request.method.value} request must not have body`,
-                    editorGroupAriaLabel: "Code editor",
-                    statusBarGroupAriaLabel: "Status bar",
-                    cursorPosition: (row, column) => `Ln ${row}, Col ${column}`,
-                    errorsTab: "Errors",
-                    warningsTab: "Warnings",
-                    preferencesButtonAriaLabel: "Preferences",
-                    paneCloseButtonAriaLabel: "Close",
-                    preferencesModalHeader: "Preferences",
-                    preferencesModalCancel: "Cancel",
-                    preferencesModalConfirm: "Confirm",
-                    preferencesModalWrapLines: "Wrap lines",
-                    preferencesModalTheme: "Theme",
-                    preferencesModalLightThemes: "Light themes",
-                    preferencesModalDarkThemes: "Dark themes"
-                  }}
-                />
-                {submitButton()}
-                </SpaceBetween>
-              )
-            }
-          ]}
+          tabs={paramTabs}
+          activeTabId={activeTab}
+          onChange={({detail}) => setActiveTab(detail.activeTabId)}
         />
         <Container
           header={
             <Header
               variant="h3"
               actions={
-                <Button
-                  iconAlign="left"
-                  iconName="copy"
-                  disabled={!canSubmit}
+                <Popover
+                  size="small"
+                  position="top"
+                  triggerType="custom"
+                  dismissButton={false}
+                  content={<StatusIndicator type="success">Copied!</StatusIndicator>}
                 >
-                  Copy code
-                </Button>
+                  <Button
+                    iconAlign="left"
+                    iconName="copy"
+                    disabled={!canSubmit}
+                    onClick={props.onCopy}
+                  >
+                    Copy code
+                  </Button>
+                </Popover>
               }
             >
               cURL example

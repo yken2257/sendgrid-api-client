@@ -32,13 +32,14 @@ export default function App() {
     ],
     queryParams: [],
     pathParam: [],
-    bodyInput: '{ "hoge": "huga" }',
-    body: { hoge: "huga" },
+    bodyInput: "",
+    body: null,
     curl: "",
     isUrlValid: true,
     isBodyValid: true
   });
   const [response, setResponse] = useState();
+  const [fetchFailed, setFetchFailed] = useState();
 
   useEffect(() => {
     const regex = /\/apiv3\/([^/]+)(?:\/|$)/;
@@ -131,18 +132,9 @@ export default function App() {
       const newUrl = new URL(`${oldUrl.origin}${replacedPath}`);
       newUrl.search = searchParams;
 
-      let curl = `curl -i --request ${request.method.value} \\\n--url ${newUrl} \\\n`;
-      for (const header of request.headers) {
-        if (header.included) {
-          curl += `--header ${header.name}: ${header.value} \\\n`
-        }
-      }
-      curl += `--data '${request.bodyInput}'` 
-
       setRequest((prevRequest) => ({
         ...prevRequest,
         urlInput: decodeURIComponent(oldUrl),
-        curl: curl,
         urlEncoded: newUrl,
         isUrlValid: true
       }));
@@ -154,14 +146,52 @@ export default function App() {
     }
   }, [request.urlInput, request.queryParams, request.pathParam]);
 
+  useEffect(() => {
+    if (request.method.value == "GET" || request.method.value == "DELETE") {
+      handleRequestChange("bodyInput", "");
+      handleRequestChange("isBodyValid", true);
+    }
+  }, [request.method]);
+
+  useEffect(() => {
+    let curl = `curl -i --request ${request.method.value} \\\n--url ${request.urlEncoded} \\\n`;
+    for (const header of request.headers) {
+      if (header.included) {
+        curl += `--header ${header.name}: ${header.value} \\\n`
+      }
+    }
+    if (request.bodyInput !== "") {
+      curl += `--data '${request.bodyInput}'` 
+    } else {
+      curl = curl.trim().slice(0,-1);
+    }
+    handleRequestChange("curl", curl);
+  }, [request.urlEncoded, request.headers, request.queryParams, request.pathParam, request.body]);
+
   const handleSelect = ({detail}) => {
     const selected = apiSearchItemsArray.find(obj => obj.value === detail.value);
     navigate(selected.docPath)
   };
 
-  const handlerequestChange = (key, value) => {
+  const handleRequestChange = (key, value) => {
     setRequest((prevRequest) => ({ ...prevRequest, [key]: value }));
   };
+
+  const handleBodyChange = (event) => {
+    handleRequestChange("bodyInput", event.detail.value);
+    if (event.detail.value !== "") {
+      try {
+        const parsed = JSON.parse(event.detail.value);
+        handleRequestChange("body", parsed);
+        handleRequestChange("isBodyValid", true);
+      } catch (e) {
+        handleRequestChange("isBodyValid", false);
+      }  
+    } else {
+      handleRequestChange("body", null);
+      handleRequestChange("isBodyValid", true);
+    }
+  }
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -172,13 +202,11 @@ export default function App() {
         }
         return obj;
       }, {});
+
       const res = await fetch(request.urlEncoded, {
         method: request.method.value,
         headers: headerObject,
-        body:
-          request.method.value === "GET" || request.method.value === "DELETE"
-            ? null
-            : JSON.stringify(request.body)
+        body: request.body === null ? null : JSON.stringify(request.body)
       });
       const ok = res.ok;
       const status = res.status;
@@ -193,41 +221,15 @@ export default function App() {
         body: responseBody
       });
     } catch (error) {
-      alert(error.message);
+      setResponse(null);
+      setFetchFailed(error.message);
     }
   };
 
-  const ApiContent = apiDetailArray.map((api) =>
-    <Route 
-      key={api.operationId}
-      path={api.docPath} 
-      element={
-        <SpaceBetween size="l">
-          <RequestForm
-            api={api}
-            request={request}
-            onRequestChange={handlerequestChange}
-            onSubmitRequest={handleSubmit}
-          />
-            {response && <ResponseContainer response={response} />}
-          {/* {process.env.ENV === "dev" && <DebugContainer request={request} api={api}/>} */}
-        </SpaceBetween>
-      }
-    />
-  );
+  const copyToClipboard = async (text) => {
+    await global.navigator.clipboard.writeText(text);
+  };
 
-  const CustomRequestContent = (
-      <SpaceBetween size="l">
-        <CustomRequestForm
-          request={request}
-          onRequestChange={handlerequestChange}
-          onSubmitRequest={handleSubmit}
-        />
-          {response && <ResponseContainer response={response} />}
-        {/* {process.env.ENV === "dev" && <DebugContainer request={request} /> } */}
-      </SpaceBetween>
-    );
-  
   const NotFound = (
     <Flashbar
       items={[{
@@ -240,6 +242,58 @@ export default function App() {
     />
   );
 
+  const FetchFailFlash = (
+    <Flashbar
+      items={[{
+      header: "Fetch API excecution failed",
+      type: "error",
+      content: fetchFailed,
+      dismissible: true,
+      onDismiss: () => setFetchFailed(),
+      id: "fetch_failed"
+      }]}
+    />
+  );
+
+  const ApiContent = apiDetailArray.map((api) =>
+    <Route 
+      key={api.operationId}
+      path={api.docPath} 
+      element={
+        <SpaceBetween size="l">
+          <RequestForm
+            api={api}
+            request={request}
+            onRequestChange={handleRequestChange}
+            onBodyChange={handleBodyChange}
+            onSubmitRequest={handleSubmit}
+            onCopy={() => copyToClipboard(request.curl)}
+          />
+          {response && <ResponseContainer response={response} />}
+          {fetchFailed && FetchFailFlash} 
+          {/* {process.env.ENV === "dev" && <DebugContainer request={request} api={api}/>} */}
+          {/* <DebugContainer request={request} api={api}/> */}
+        </SpaceBetween>
+      }
+    />
+  );
+
+  const CustomRequestContent = (
+      <SpaceBetween size="l">
+        <CustomRequestForm
+          request={request}
+          onRequestChange={handleRequestChange}
+          onBodyChange={handleBodyChange}
+          onSubmitRequest={handleSubmit}
+          onCopy={() => copyToClipboard(request.curl)}
+        />
+        {response && <ResponseContainer response={response} />}
+        {/* {process.env.ENV === "dev" && <DebugContainer request={request} /> } */}
+        {fetchFailed && FetchFailFlash} 
+        {/* <DebugContainer request={request} /> */}
+      </SpaceBetween>
+    );
+  
   return (
     <AppLayout
       toolsHide={false}

@@ -23,6 +23,7 @@ import {
   Input,
   Popover,
   SpaceBetween,
+  StatusIndicator,
   Tabs
 } from "@cloudscape-design/components";
   
@@ -33,8 +34,7 @@ export default function RequestForm(props) {
   const api = props.api;
   const headers = props.request.headers;
   const queryParams = props.request.queryParams;
-  const bodyInput = props.request.bodyInput;
-  const [activeTab, setActiveTab] = React.useState("header")
+  const [activeTab, setActiveTab] = React.useState("header");
   const [preferences, setPreferences] = React.useState(undefined);
   const [editorHeight, setEditorHeight] = React.useState();
 
@@ -53,27 +53,9 @@ export default function RequestForm(props) {
       badgeColor = {};
   }
 
-  useEffect(() => {
-    try {
-      JSON.parse(bodyInput);
-      props.onRequestChange("isBodyValid", true);
-    } catch (e) {
-      props.onRequestChange("isBodyValid", false);
-    }
-  }, [bodyInput]);
-
   useEffect(()=> {
     setActiveTab("header");
   }, [api]);
-
-  const handleBodyChange = (event) => {
-    props.onRequestChange("bodyInput", event.detail.value);
-    try {
-      const parsed = JSON.parse(event.detail.value);
-      props.onRequestChange("body", parsed);
-    } catch (e) {
-    }
-  };
 
   const handleParamChange = (index, param, param_name, isValue) => (event) => {
     const keyValuePairs = [...param];
@@ -251,7 +233,7 @@ export default function RequestForm(props) {
           onEditorContentResize={({detail}) => setEditorHeight(detail.height)}
           preferences={preferences}
           onPreferencesChange={(e) => setPreferences(e.detail)}
-          onDelayedChange={handleBodyChange}
+          onDelayedChange={props.onBodyChange}
           i18nStrings={{
             editorGroupAriaLabel: "Code editor",
             statusBarGroupAriaLabel: "Status bar",
@@ -320,13 +302,22 @@ export default function RequestForm(props) {
             <Header
               variant="h3"
               actions={
-                <Button
-                  iconAlign="left"
-                  iconName="copy"
-                  disabled={!canSubmit}
+                <Popover
+                  size="small"
+                  position="top"
+                  triggerType="custom"
+                  dismissButton={false}
+                  content={<StatusIndicator type="success">Copied!</StatusIndicator>}
                 >
-                  Copy code
-                </Button>
+                  <Button
+                    iconAlign="left"
+                    iconName="copy"
+                    disabled={!canSubmit}
+                    onClick={props.onCopy}
+                  >
+                    Copy code
+                  </Button>
+                </Popover>
               }
             >
               cURL example
