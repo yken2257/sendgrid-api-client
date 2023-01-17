@@ -95,7 +95,7 @@ export default function RequestForm(props) {
 
   const handleParamAdd = (param, param_name) => {
     const keyValuePairs = [...param];
-    keyValuePairs.push({ name: "", value: "", included: true });
+    keyValuePairs.push({ name: "", value: "", included: true, canEditKey: true, canDelete: true});
     props.onRequestChange(param_name, keyValuePairs);
   };
 

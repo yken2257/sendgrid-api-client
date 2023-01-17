@@ -59,8 +59,9 @@ export default function App() {
         }
         const queries = [];
         const pathParam = [];
+        const authVal = request.headers[0].name == "Authorization" ? request.headers[0].value : "Bearer API_KEY"
         const headers = [
-          { name: "Authorization", value: "Bearer API_KEY", included: true, canEditKey: false, canDelete: true},
+          { name: "Authorization", value: authVal, included: true, canEditKey: false, canDelete: true },
           { name: "Content-Type", value: "application/json", included: true, canEditKey: false, canDelete: true }    
         ];
         if ('parameters' in api) {
@@ -107,6 +108,8 @@ export default function App() {
         }));
       }
     }
+    setResponse();
+    setFetchFailed();
   }, [location.pathname]);
 
   useEffect(() => {
@@ -168,6 +171,21 @@ export default function App() {
     handleRequestChange("curl", curl);
   }, [request.urlEncoded, request.headers, request.queryParams, request.pathParam, request.body]);
 
+  useEffect(() => {
+    if (request.bodyInput !== "") {
+      try {
+        const parsed = JSON.parse(request.bodyInput);
+        handleRequestChange("body", parsed);
+        handleRequestChange("isBodyValid", true);
+      } catch (e) {
+        handleRequestChange("isBodyValid", false);
+      }  
+    } else {
+      handleRequestChange("body", null);
+      handleRequestChange("isBodyValid", true);
+    }
+  }, [request.bodyInput]);
+
   const handleSelect = ({detail}) => {
     const selected = apiSearchItemsArray.find(obj => obj.value === detail.value);
     navigate(selected.docPath)
@@ -179,18 +197,6 @@ export default function App() {
 
   const handleBodyChange = (event) => {
     handleRequestChange("bodyInput", event.detail.value);
-    if (event.detail.value !== "") {
-      try {
-        const parsed = JSON.parse(event.detail.value);
-        handleRequestChange("body", parsed);
-        handleRequestChange("isBodyValid", true);
-      } catch (e) {
-        handleRequestChange("isBodyValid", false);
-      }  
-    } else {
-      handleRequestChange("body", null);
-      handleRequestChange("isBodyValid", true);
-    }
   }
 
   const handleSubmit = async (event) => {
@@ -245,7 +251,7 @@ export default function App() {
   const FetchFailFlash = (
     <Flashbar
       items={[{
-      header: "Fetch API excecution failed",
+      header: "Fetch API execution failed",
       type: "error",
       content: fetchFailed,
       dismissible: true,
@@ -269,7 +275,12 @@ export default function App() {
             onSubmitRequest={handleSubmit}
             onCopy={() => copyToClipboard(request.curl)}
           />
-          {response && <ResponseContainer response={response} />}
+          {response && 
+            <ResponseContainer 
+              response={response}
+              onCopy={() => copyToClipboard(response.body)}
+            />
+          }
           {fetchFailed && FetchFailFlash} 
           {/* {process.env.ENV === "dev" && <DebugContainer request={request} api={api}/>} */}
           {/* <DebugContainer request={request} api={api}/> */}
@@ -287,7 +298,12 @@ export default function App() {
           onSubmitRequest={handleSubmit}
           onCopy={() => copyToClipboard(request.curl)}
         />
-        {response && <ResponseContainer response={response} />}
+        {response && 
+          <ResponseContainer 
+            response={response}
+            onCopy={() => copyToClipboard(response.body)}
+          />
+        }
         {/* {process.env.ENV === "dev" && <DebugContainer request={request} /> } */}
         {fetchFailed && FetchFailFlash} 
         {/* <DebugContainer request={request} /> */}
@@ -296,7 +312,7 @@ export default function App() {
   
   return (
     <AppLayout
-      toolsHide={false}
+      toolsHide={true}
       navigation={<Navigation />}
       content={
         <ContentLayout
@@ -306,7 +322,7 @@ export default function App() {
                 variant="h1"
                 description={
                   <>
-                    This React app makes you access apis with ease.
+                    This React app enables you to access SendGrid with ease.
                   </>
                 }
               >
@@ -326,7 +342,7 @@ export default function App() {
           }
         >
           <Routes>
-            <Route path="/" element={<></>} />
+            <Route path="/" element={CustomRequestContent} />
             <Route path="custom" element={CustomRequestContent} />
             <Route path="apiv3/">
               {ApiContent}
