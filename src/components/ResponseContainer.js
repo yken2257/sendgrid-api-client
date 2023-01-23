@@ -18,7 +18,11 @@ export default function ResponseContainer(props) {
     let text = props.response.body;
     if (contentType === "application/json") {
       mode = "json";
-      text = JSON.stringify(JSON.parse(props.response.body), null, 2);
+      if (props.response.body) {
+        text = JSON.stringify(JSON.parse(props.response.body), null, 2);
+      } else {
+        text = null;
+      }
     } else if (contentType === "text/html") {
       mode = "html"
     }
@@ -58,6 +62,7 @@ export default function ResponseContainer(props) {
             </Header>
           }
         >
+        { text &&
           <AceEditor
             mode={mode}
             theme="dawn"
@@ -70,6 +75,7 @@ export default function ResponseContainer(props) {
             showPrintMargin={false}
             enableBasicAutocompletion={false}
           />
+        }
         </Container>
       </SpaceBetween>
     );

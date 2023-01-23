@@ -5,7 +5,7 @@ export default function Navigation() {
   return (
     <SideNavigation
       activeHref={document.location.hash}
-      header={{ href: "/", text: "Index" }}
+      header={{ href: "/", text: "Home" }}
       items={[
         { type: "link", text: "Custom", href: "#/custom" },
         { type: "divider" },

@@ -160,7 +160,7 @@ export default function App() {
     let curl = `curl -i --request ${request.method.value} \\\n--url ${request.urlEncoded} \\\n`;
     for (const header of request.headers) {
       if (header.included) {
-        curl += `--header ${header.name}: ${header.value} \\\n`
+        curl += `--header "${header.name}: ${header.value}" \\\n`
       }
     }
     if (request.bodyInput !== "") {
