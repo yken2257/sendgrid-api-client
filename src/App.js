@@ -283,7 +283,7 @@ export default function App() {
           }
           {fetchFailed && FetchFailFlash} 
           {/* {process.env.ENV === "dev" && <DebugContainer request={request} api={api}/>} */}
-          {/* <DebugContainer request={request} api={api}/> */}
+          <DebugContainer request={request} api={api}/>
         </SpaceBetween>
       }
     />
@@ -306,7 +306,7 @@ export default function App() {
         }
         {/* {process.env.ENV === "dev" && <DebugContainer request={request} /> } */}
         {fetchFailed && FetchFailFlash} 
-        {/* <DebugContainer request={request} /> */}
+        <DebugContainer request={request} />
       </SpaceBetween>
     );
   
