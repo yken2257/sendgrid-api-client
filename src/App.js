@@ -293,8 +293,7 @@ export default function App() {
             />
           }
           {fetchFailed && FetchFailFlash} 
-          {/* {process.env.ENV === "dev" && <DebugContainer request={request} api={api}/>} */}
-          <DebugContainer request={request} api={api}/>
+          {process.env.ENV === "dev" && <DebugContainer request={request} api={api}/>}
         </SpaceBetween>
       }
     />
@@ -315,12 +314,14 @@ export default function App() {
             onCopy={() => copyToClipboard(response.body)}
           />
         }
-        {/* {process.env.ENV === "dev" && <DebugContainer request={request} /> } */}
         {fetchFailed && FetchFailFlash} 
-        <DebugContainer request={request} />
-      </SpaceBetween>
+        {process.env.ENV === "dev" && <DebugContainer request={request} /> }
+        </SpaceBetween>
     );
   
+  const enviorn = process.env.ENV
+  const fetchUrl = process.env.FETCH_URL
+
   return (
     <AppLayout
       toolsHide={true}
@@ -334,7 +335,8 @@ export default function App() {
                 description={
                   <>
                     This React app enables you to access SendGrid with ease.<br/>
-                    ENV: {process.env.ENV}
+                    ENV: {enviorn}<br/>
+                    url: {fetchUrl}
                   </>
                 }
               >
