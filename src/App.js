@@ -209,20 +209,31 @@ export default function App() {
         return obj;
       }, {});
 
-      const res = await fetch(request.urlEncoded, {
-        method: request.method.value,
-        headers: headerObject,
-        body: request.body === null ? null : JSON.stringify(request.body)
+      const fetchUrl = process.env.FETCH_URL;
+      const body = {
+        resource: request.urlEncoded,
+        options: {
+          method: request.method.value,
+          headers: headerObject,
+          body: request.body === null ? null : JSON.stringify(request.body)  
+        }
+      };
+      const res = await fetch(fetchUrl, {
+        method: "POST",
+        body: JSON.stringify(body)
       });
-      const ok = res.ok;
-      const status = res.status;
-      const statusText = res.statusText;
-      const contentType = res.headers.get("content-type");
-      const responseBody = await res.text();
+      const apiResponse = await res.json();
+      const ok = apiResponse.ok;
+      const status = apiResponse.status;
+      const statusText = apiResponse.statusText;
+      const responseHeaders = apiResponse.headers;
+      const contentType = apiResponse.contentType;
+      const responseBody = apiResponse.body;
       setResponse({
         ok: ok,
         status: status,
         statusText: statusText,
+        headers: responseHeaders,
         contentType: contentType,
         body: responseBody
       });
