@@ -333,9 +333,7 @@ export default function App() {
                   variant="h1"
                   description={
                     <>
-                      This React app enables you to access SendGrid with ease.<br/>
-                      ENV: {process.env.ENV}<br/>
-                      url: {process.env.FETCH_URL}
+                      This React app enables you to access SendGrid with ease.
                     </>
                   }
                 >
