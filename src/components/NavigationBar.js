@@ -3,6 +3,12 @@ import { TopNavigation } from "@cloudscape-design/components";
 export default function NavigationBar(props) {
     const title = process.env.ENV == "DEV" ? "SendGrid Support Helper - DEV" : "SendGrid Support Helper"
 
+    const handleSettingsItemClick = ({detail}) => {
+        if (detail.id == "display-api-key") {
+            props.onViewApiKeyMordal()
+        }
+    };
+
     return (
         <TopNavigation
             identity={{
@@ -17,7 +23,7 @@ export default function NavigationBar(props) {
             utilities={[
                 {
                     type: "menu-dropdown",
-                    // text: "menu",
+                    text: "Menu",
                     iconName: "menu",
                     ariaLabel: "Menu",
                     title: "Menu",
@@ -47,12 +53,25 @@ export default function NavigationBar(props) {
                     ]
                 },
                 {
+                    type: "button",
+                    iconName: "key",
+                    text: "API Key",
+                    ariaLabel: "Api Key",
+                    disableUtilityCollapse: false,
+                    onClick: () => props.onViewApiKeyMordal()
+                },
+                {
                 type: "menu-dropdown",
                 description: "email@example.com",
                 iconName: "user-profile",
                 disabled: process.env.ENV == "DEV" ? false : true,
+                onItemClick: handleSettingsItemClick,
                 items: [
                     { id: "profile", text: "Profile" },
+                    {
+                        id: "display-api-key",
+                        text: "API Keys"
+                    },
                     { id: "preferences", text: "Preferences" },
                     { id: "security", text: "Security" },
                     {

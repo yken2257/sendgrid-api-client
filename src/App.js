@@ -17,18 +17,21 @@ import CustomRequestForm from "./components/CustomRequestForm";
 import Navigation from "./components/Navigation";
 import NavigationBar from "./components/NavigationBar";
 import { apiDetailArray, apiSearchItemsArray } from "./parseOpenApi"
+import ApiKeyMordal from "./components/ApiKeyModal";
 
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchText, setSearchText] = useState("");
   const [api, setApi] = useState();
+  const [apiKey, setApiKey] = useState("API_KEY");
+  const [viewApIkeyModal, setViewApIkeyModal] = useState(false);
   const [request, setRequest] = useState({
     urlInput: "",
     urlEncoded: "",
     method: { value: "GET" },
     headers: [
-      { name: "Authorization", value: "Bearer API_KEY", included: true, canEditKey: true, canDelete: true },
+      { name: "Authorization", value: `Bearer ${apiKey}`, included: true, canEditKey: true, canDelete: true },
       { name: "Content-Type", value: "application/json", included: true, canEditKey: true, canDelete: true }
     ],
     queryParams: [],
@@ -60,7 +63,7 @@ export default function App() {
         }
         const queries = [];
         const pathParam = [];
-        const authVal = request.headers[0].name == "Authorization" ? request.headers[0].value : "Bearer API_KEY"
+        const authVal = request.headers[0].name == "Authorization" ? request.headers[0].value : `Bearer ${apiKey}`
         const headers = [
           { name: "Authorization", value: authVal, included: true, canEditKey: false, canDelete: true },
           { name: "Content-Type", value: "application/json", included: true, canEditKey: false, canDelete: true }    
@@ -243,6 +246,25 @@ export default function App() {
     }
   };
 
+  const handleViewApiKeyMordal = () => {
+    setViewApIkeyModal(true);
+  }
+
+  const handleChangeApiKey = (value) => {
+    setApiKey(value);
+    const newHeaders = request.headers;
+    if (request.headers[0].name == "Authorization") {
+      newHeaders[0] = { 
+        name: "Authorization", 
+        value: `Bearer ${value}`, 
+        included: true, 
+        canEditKey: false, 
+        canDelete: true 
+      }
+    }
+    handleRequestChange("headers", newHeaders);
+  }
+
   const copyToClipboard = async (text) => {
     await global.navigator.clipboard.writeText(text);
   };
@@ -321,7 +343,15 @@ export default function App() {
 
   return (
     <>
-      <NavigationBar/>
+      <NavigationBar
+        onViewApiKeyMordal={handleViewApiKeyMordal}
+      />
+      <ApiKeyMordal
+        visible={viewApIkeyModal}
+        apiKey={apiKey}
+        onChangeApiKey={(value) => handleChangeApiKey(value)}
+        onDismissApiKeyMordal={() => setViewApIkeyModal(false)}  
+      />
       <AppLayout
         toolsHide={true}
         navigation={<Navigation />}
