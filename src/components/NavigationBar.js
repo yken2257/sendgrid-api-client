@@ -4,7 +4,7 @@ export default function NavigationBar(props) {
     return (
         <TopNavigation
             identity={{
-                href: "#",
+                href: "",
                 title: "SendGrid Support Helper",
                 // logo: {
                 // src:
@@ -17,17 +17,30 @@ export default function NavigationBar(props) {
                     type: "menu-dropdown",
                     // text: "menu",
                     iconName: "menu",
-                    disabled: process.env.ENV == "dev" ? false : true,
                     ariaLabel: "Menu",
                     title: "Menu",
                     items: [
                         {
-                            id: "settings-org",
-                            text: "Organizational settings"
-                        },
-                        {
-                            id: "settings-project",
-                            text: "Project settings"
+                            id: "api-group",
+                            text: "API Client",
+                            items: [
+                                {
+                                    id: "sendgrid-api-client",
+                                    text: "Web API v3",
+                                    href: "#/apiv3/POST_mail-send"
+                                },
+                                {
+                                    id: "custom-api-client",
+                                    text: "Custom request",
+                                    href: "#/custom"
+                                },
+                                {
+                                    id: "reseller-api-client",
+                                    text: "Reseller API",
+                                    disabled: true,
+                                    disabledReason: "Unauthorized"
+                                }
+                            ]
                         }
                     ]
                 },
@@ -35,33 +48,33 @@ export default function NavigationBar(props) {
                 type: "menu-dropdown",
                 description: "email@example.com",
                 iconName: "user-profile",
-                disabled: process.env.ENV == "dev" ? false : true,
+                disabled: process.env.ENV == "DEV" ? false : true,
                 items: [
                     { id: "profile", text: "Profile" },
                     { id: "preferences", text: "Preferences" },
                     { id: "security", text: "Security" },
                     {
-                    id: "support-group",
-                    text: "Support",
-                    items: [
-                        {
-                        id: "documentation",
-                        text: "Documentation",
-                        href: "#",
-                        external: true,
-                        externalIconAriaLabel:
-                            " (opens in new tab)"
-                        },
-                        { id: "support", text: "Support" },
-                        {
-                        id: "feedback",
-                        text: "Feedback",
-                        href: "#",
-                        external: true,
-                        externalIconAriaLabel:
-                            " (opens in new tab)"
-                        }
-                    ]
+                        id: "support-group",
+                        text: "Support",
+                        items: [
+                            {
+                            id: "documentation",
+                            text: "Documentation",
+                            href: "#",
+                            external: true,
+                            externalIconAriaLabel:
+                                " (opens in new tab)"
+                            },
+                            { id: "support", text: "Support" },
+                            {
+                            id: "feedback",
+                            text: "Feedback",
+                            href: "#",
+                            external: true,
+                            externalIconAriaLabel:
+                                " (opens in new tab)"
+                            }
+                        ]
                     },
                     { id: "signout", text: "Sign out" }
                 ]

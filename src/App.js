@@ -41,7 +41,7 @@ export default function App() {
   });
   const [response, setResponse] = useState();
   const [fetchFailed, setFetchFailed] = useState();
-
+  
   useEffect(() => {
     const regex = /\/apiv3\/([^/]+)(?:\/|$)/;
     const match = location.pathname.match(regex);
@@ -210,7 +210,6 @@ export default function App() {
         return obj;
       }, {});
 
-      const fetchUrl = process.env.FETCH_URL;
       const body = {
         resource: request.urlEncoded,
         options: {
@@ -219,7 +218,7 @@ export default function App() {
           body: request.body === null ? null : JSON.stringify(request.body)  
         }
       };
-      const res = await fetch(fetchUrl, {
+      const res = await fetch(process.env.FETCH_URL, {
         method: "POST",
         body: JSON.stringify(body)
       });
@@ -294,7 +293,7 @@ export default function App() {
             />
           }
           {fetchFailed && FetchFailFlash} 
-          {process.env.ENV === "dev" && <DebugContainer request={request} api={api}/>}
+          {process.env.ENV === "DEV" && <DebugContainer request={request} api={api}/>}
         </SpaceBetween>
       }
     />
@@ -316,12 +315,9 @@ export default function App() {
           />
         }
         {fetchFailed && FetchFailFlash} 
-        {process.env.ENV === "dev" && <DebugContainer request={request} /> }
+        {process.env.ENV === "DEV" && <DebugContainer request={request} /> }
         </SpaceBetween>
     );
-  
-  const enviorn = process.env.ENV
-  const fetchUrl = process.env.FETCH_URL
 
   return (
     <>
@@ -338,8 +334,8 @@ export default function App() {
                   description={
                     <>
                       This React app enables you to access SendGrid with ease.<br/>
-                      ENV: {enviorn}<br/>
-                      url: {fetchUrl}
+                      ENV: {process.env.ENV}<br/>
+                      url: {process.env.FETCH_URL}
                     </>
                   }
                 >
