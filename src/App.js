@@ -15,6 +15,7 @@ import DebugContainer from "./components/DebugContainer";
 import RequestForm from "./components/RequestForm";
 import CustomRequestForm from "./components/CustomRequestForm";
 import Navigation from "./components/Navigation";
+import NavigationBar from "./components/NavigationBar";
 import { apiDetailArray, apiSearchItemsArray } from "./parseOpenApi"
 
 export default function App() {
@@ -40,7 +41,7 @@ export default function App() {
   });
   const [response, setResponse] = useState();
   const [fetchFailed, setFetchFailed] = useState();
-
+  
   useEffect(() => {
     const regex = /\/apiv3\/([^/]+)(?:\/|$)/;
     const match = location.pathname.match(regex);
@@ -209,20 +210,30 @@ export default function App() {
         return obj;
       }, {});
 
-      const res = await fetch(request.urlEncoded, {
-        method: request.method.value,
-        headers: headerObject,
-        body: request.body === null ? null : JSON.stringify(request.body)
+      const body = {
+        resource: request.urlEncoded,
+        options: {
+          method: request.method.value,
+          headers: headerObject,
+          body: request.body === null ? null : JSON.stringify(request.body)  
+        }
+      };
+      const res = await fetch(process.env.FETCH_URL, {
+        method: "POST",
+        body: JSON.stringify(body)
       });
-      const ok = res.ok;
-      const status = res.status;
-      const statusText = res.statusText;
-      const contentType = res.headers.get("content-type");
-      const responseBody = await res.text();
+      const apiResponse = await res.json();
+      const ok = apiResponse.ok;
+      const status = apiResponse.status;
+      const statusText = apiResponse.statusText;
+      const responseHeaders = apiResponse.headers;
+      const contentType = apiResponse.contentType;
+      const responseBody = apiResponse.body;
       setResponse({
         ok: ok,
         status: status,
         statusText: statusText,
+        headers: responseHeaders,
         contentType: contentType,
         body: responseBody
       });
@@ -282,8 +293,7 @@ export default function App() {
             />
           }
           {fetchFailed && FetchFailFlash} 
-          {/* {process.env.ENV === "dev" && <DebugContainer request={request} api={api}/>} */}
-          {/* <DebugContainer request={request} api={api}/> */}
+          {process.env.ENV === "DEV" && <DebugContainer request={request} api={api}/>}
         </SpaceBetween>
       }
     />
@@ -304,53 +314,55 @@ export default function App() {
             onCopy={() => copyToClipboard(response.body)}
           />
         }
-        {/* {process.env.ENV === "dev" && <DebugContainer request={request} /> } */}
         {fetchFailed && FetchFailFlash} 
-        {/* <DebugContainer request={request} /> */}
-      </SpaceBetween>
+        {process.env.ENV === "DEV" && <DebugContainer request={request} /> }
+        </SpaceBetween>
     );
-  
+
   return (
-    <AppLayout
-      toolsHide={true}
-      navigation={<Navigation />}
-      content={
-        <ContentLayout
-          header={
-            <SpaceBetween size="xs">
-              <Header
-                variant="h1"
-                description={
-                  <>
-                    This React app enables you to access SendGrid with ease.
-                  </>
-                }
-              >
-                SendGrid API Client
-              </Header>
-              <Autosuggest
-                onChange={({ detail }) => setSearchText(detail.value)}
-                onSelect={handleSelect}
-                value={searchText}
-                options={apiSearchItemsArray}
-                enteredTextLabel={(value) => `Use: "${value}"`}
-                ariaLabel="Autosuggest example with features"
-                placeholder="Enter value"
-                empty="No matches found"
-              />
-            </SpaceBetween>
-          }
-        >
-          <Routes>
-            <Route path="/" element={CustomRequestContent} />
-            <Route path="custom" element={CustomRequestContent} />
-            <Route path="apiv3/">
-              {ApiContent}
-            </Route>
-            <Route path="*" element={NotFound} />
-          </Routes>
-        </ContentLayout>
-      }
-    />
+    <>
+      <NavigationBar/>
+      <AppLayout
+        toolsHide={true}
+        navigation={<Navigation />}
+        content={
+          <ContentLayout
+            header={
+              <SpaceBetween size="xs">
+                <Header
+                  variant="h1"
+                  description={
+                    <>
+                      This React app enables you to access SendGrid with ease.
+                    </>
+                  }
+                >
+                  SendGrid API Client
+                </Header>
+                <Autosuggest
+                  onChange={({ detail }) => setSearchText(detail.value)}
+                  onSelect={handleSelect}
+                  value={searchText}
+                  options={apiSearchItemsArray}
+                  enteredTextLabel={(value) => `Use: "${value}"`}
+                  ariaLabel="Autosuggest example with features"
+                  placeholder="Enter value"
+                  empty="No matches found"
+                />
+              </SpaceBetween>
+            }
+          >
+            <Routes>
+              <Route path="/" element={CustomRequestContent} />
+              <Route path="custom" element={CustomRequestContent} />
+              <Route path="apiv3/">
+                {ApiContent}
+              </Route>
+              <Route path="*" element={NotFound} />
+            </Routes>
+          </ContentLayout>
+        }
+      />
+    </>
   );
 }

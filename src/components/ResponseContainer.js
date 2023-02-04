@@ -1,11 +1,13 @@
 import AceEditor from 'react-ace';
 import "ace-builds/src-noconflict/mode-json";
 import "ace-builds/src-noconflict/mode-html";
+import "ace-builds/src-noconflict/mode-text";
 import "ace-builds/src-noconflict/theme-dawn";
 import {
     Alert,
     Button,
     Container,
+    Grid,
     Header,
     Popover,
     SpaceBetween,
@@ -26,6 +28,10 @@ export default function ResponseContainer(props) {
     } else if (contentType === "text/html") {
       mode = "html"
     }
+    const headersString = Object.entries(props.response.headers)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join('\n');
+    
     return (
       <SpaceBetween size="xxs">
         <Alert
@@ -36,47 +42,76 @@ export default function ResponseContainer(props) {
             </Header>
           }
         ></Alert>
-        <Container 
-          header={
-            <Header 
-              variant="h3"
-              actions={
-                <Popover
-                  size="small"
-                  position="top"
-                  triggerType="custom"
-                  dismissButton={false}
-                  content={<StatusIndicator type="success">Copied!</StatusIndicator>}
-                >
-                  <Button
-                    iconAlign="left"
-                    iconName="copy"
-                    onClick={props.onCopy}
-                  >
-                    Copy code
-                  </Button>
-                </Popover>
-              }
-            >
-              Response body
-            </Header>
-          }
+        <Grid
+          gridDefinition={[
+            { colspan: { default: 12, xxs: 6 } },
+            { colspan: { default: 12, xxs: 6 } }
+          ]}
         >
-        { text &&
-          <AceEditor
-            mode={mode}
-            theme="dawn"
-            value={text}
-            width={null}
-            maxLines={50}
-            showGutter={false}
-            highlightActiveLine={false}
-            readOnly={true}
-            showPrintMargin={false}
-            enableBasicAutocompletion={false}
-          />
-        }
-        </Container>
+          <Container 
+            header={
+              <Header 
+                variant="h3"
+                actions={
+                  <Popover
+                    size="small"
+                    position="top"
+                    triggerType="custom"
+                    dismissButton={false}
+                    content={<StatusIndicator type="success">Copied!</StatusIndicator>}
+                  >
+                    <Button
+                      iconAlign="left"
+                      iconName="copy"
+                      onClick={props.onCopy}
+                    >
+                      Copy code
+                    </Button>
+                  </Popover>
+                }
+              >
+                Body
+              </Header>
+            }
+          >
+          { text &&
+            <AceEditor
+              mode={mode}
+              theme="dawn"
+              value={text}
+              width={null}
+              maxLines={50}
+              showGutter={false}
+              highlightActiveLine={false}
+              readOnly={true}
+              showPrintMargin={false}
+              enableBasicAutocompletion={false}
+            />
+          }
+          </Container>
+          <Container 
+            header={
+              <Header 
+                variant="h3"
+              >
+                Header
+              </Header>
+            }
+          >
+            <AceEditor
+              mode="text"
+              theme="dawn"
+              value={headersString}
+              width={null}
+              maxLines={50}
+              showGutter={false}
+              highlightActiveLine={false}
+              readOnly={true}
+              showPrintMargin={false}
+              enableBasicAutocompletion={false}
+            />
+          </Container>
+        </Grid>
       </SpaceBetween>
     );
   }
