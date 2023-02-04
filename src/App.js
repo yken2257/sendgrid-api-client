@@ -15,6 +15,7 @@ import DebugContainer from "./components/DebugContainer";
 import RequestForm from "./components/RequestForm";
 import CustomRequestForm from "./components/CustomRequestForm";
 import Navigation from "./components/Navigation";
+import NavigationBar from "./components/NavigationBar";
 import { apiDetailArray, apiSearchItemsArray } from "./parseOpenApi"
 
 export default function App() {
@@ -323,48 +324,51 @@ export default function App() {
   const fetchUrl = process.env.FETCH_URL
 
   return (
-    <AppLayout
-      toolsHide={true}
-      navigation={<Navigation />}
-      content={
-        <ContentLayout
-          header={
-            <SpaceBetween size="xs">
-              <Header
-                variant="h1"
-                description={
-                  <>
-                    This React app enables you to access SendGrid with ease.<br/>
-                    ENV: {enviorn}<br/>
-                    url: {fetchUrl}
-                  </>
-                }
-              >
-                SendGrid API Client
-              </Header>
-              <Autosuggest
-                onChange={({ detail }) => setSearchText(detail.value)}
-                onSelect={handleSelect}
-                value={searchText}
-                options={apiSearchItemsArray}
-                enteredTextLabel={(value) => `Use: "${value}"`}
-                ariaLabel="Autosuggest example with features"
-                placeholder="Enter value"
-                empty="No matches found"
-              />
-            </SpaceBetween>
-          }
-        >
-          <Routes>
-            <Route path="/" element={CustomRequestContent} />
-            <Route path="custom" element={CustomRequestContent} />
-            <Route path="apiv3/">
-              {ApiContent}
-            </Route>
-            <Route path="*" element={NotFound} />
-          </Routes>
-        </ContentLayout>
-      }
-    />
+    <>
+      <NavigationBar/>
+      <AppLayout
+        toolsHide={true}
+        navigation={<Navigation />}
+        content={
+          <ContentLayout
+            header={
+              <SpaceBetween size="xs">
+                <Header
+                  variant="h1"
+                  description={
+                    <>
+                      This React app enables you to access SendGrid with ease.<br/>
+                      ENV: {enviorn}<br/>
+                      url: {fetchUrl}
+                    </>
+                  }
+                >
+                  SendGrid API Client
+                </Header>
+                <Autosuggest
+                  onChange={({ detail }) => setSearchText(detail.value)}
+                  onSelect={handleSelect}
+                  value={searchText}
+                  options={apiSearchItemsArray}
+                  enteredTextLabel={(value) => `Use: "${value}"`}
+                  ariaLabel="Autosuggest example with features"
+                  placeholder="Enter value"
+                  empty="No matches found"
+                />
+              </SpaceBetween>
+            }
+          >
+            <Routes>
+              <Route path="/" element={CustomRequestContent} />
+              <Route path="custom" element={CustomRequestContent} />
+              <Route path="apiv3/">
+                {ApiContent}
+              </Route>
+              <Route path="*" element={NotFound} />
+            </Routes>
+          </ContentLayout>
+        }
+      />
+    </>
   );
 }
