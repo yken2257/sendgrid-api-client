@@ -376,7 +376,7 @@ export default function App() {
                   options={apiSearchItemsArray}
                   enteredTextLabel={(value) => `Use: "${value}"`}
                   ariaLabel="Autosuggest example with features"
-                  placeholder="Enter value"
+                  placeholder="Search API by title, url, category, description"
                   empty="No matches found"
                 />
               </SpaceBetween>

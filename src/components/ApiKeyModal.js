@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { 
     Box,
     Button,
@@ -8,9 +9,21 @@ import {
 } from "@cloudscape-design/components";
 
 export default function ApiKeyMordal(props) {
+  const [tmpApiKey, setTmpApiKey] = useState(props.apiKey);
+
+  const handleDismissMordal = () => {
+    setTmpApiKey(props.apiKey);
+    props.onDismissApiKeyMordal();
+  }
+
+  const handleRegisterApiKey = () => {
+    props.onChangeApiKey(tmpApiKey);
+    props.onDismissApiKeyMordal();
+  };
+
   return (
     <Modal
-      onDismiss={props.onDismissApiKeyMordal}
+      onDismiss={handleDismissMordal}
       visible={props.visible}
       closeAriaLabel="Close modal"
       footer={
@@ -18,15 +31,15 @@ export default function ApiKeyMordal(props) {
           <SpaceBetween direction="horizontal" size="xs">
             <Button 
               variant="link"
-              onClick={props.onDismissApiKeyMordal}
+              onClick={handleDismissMordal}
               >
                 Cancel
             </Button>
             <Button 
               variant="primary"
-              onClick={props.onDismissApiKeyMordal}
+              onClick={handleRegisterApiKey}
             >
-              Ok
+              OK
             </Button>
           </SpaceBetween>
         </Box>
@@ -34,12 +47,12 @@ export default function ApiKeyMordal(props) {
       header="API Key"
     >
       <FormField
-        label="Enter your API key"
+        label="Register your API key"
         //description="This is a description"
       >
         <Input 
-          onChange={({ detail }) => props.onChangeApiKey(detail.value)}
-          value={props.apiKey}    
+          onChange={({ detail }) => setTmpApiKey(detail.value)}
+          value={tmpApiKey}    
         />
       </FormField>
     </Modal>

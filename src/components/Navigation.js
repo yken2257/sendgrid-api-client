@@ -10,19 +10,7 @@ export default function Navigation() {
         { type: "link", text: "Custom", href: "#/custom" },
         { type: "divider" },
         ...navigationArray,
-        { type: "divider" },
-        {
-          type: "link",
-          text: "Notifications",
-          href: "#/",
-          info: <Badge color="red">23</Badge>
-        },
-        {
-          type: "link",
-          text: "Documentation",
-          href: "https://docs.sendgrid.com/api-reference",
-          external: true
-        }
+        { type: "divider" }
       ]}
     />
   );
