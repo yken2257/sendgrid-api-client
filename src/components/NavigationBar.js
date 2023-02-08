@@ -35,12 +35,12 @@ export default function NavigationBar(props) {
                                 {
                                     id: "sendgrid-api-client",
                                     text: "Web API v3",
-                                    href: "#/apiv3/POST_mail-send"
+                                    href: "#/api/v3"
                                 },
                                 {
                                     id: "custom-api-client",
-                                    text: "Custom request",
-                                    href: "#/custom"
+                                    text: "Custom Request",
+                                    href: "#/api/custom"
                                 },
                                 {
                                     id: "reseller-api-client",

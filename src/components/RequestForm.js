@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useState } from "react";
 import AceEditor from 'react-ace';
 import ace from "ace-builds/src-noconflict/ace";
 import 'ace-builds/webpack-resolver'
@@ -34,9 +34,8 @@ export default function RequestForm(props) {
   const api = props.api;
   const headers = props.request.headers;
   const queryParams = props.request.queryParams;
-  const [activeTab, setActiveTab] = React.useState("header");
-  const [preferences, setPreferences] = React.useState(undefined);
-  const [editorHeight, setEditorHeight] = React.useState();
+  const [preferences, setPreferences] = useState(undefined);
+  const [editorHeight, setEditorHeight] = useState();
 
   let badgeColor = null;
   switch (props.request.method.value) {
@@ -52,10 +51,6 @@ export default function RequestForm(props) {
     default:
       badgeColor = {};
   }
-
-  useEffect(()=> {
-    setActiveTab("header");
-  }, [api]);
 
   const handleParamChange = (index, param, param_name, isValue) => (event) => {
     const keyValuePairs = [...param];
@@ -294,8 +289,8 @@ export default function RequestForm(props) {
         <Tabs
           variant="container"
           tabs={paramTabs}
-          activeTabId={activeTab}
-          onChange={({detail}) => setActiveTab(detail.activeTabId)}
+          activeTabId={props.activeTab}
+          onChange={({detail}) => props.onSetActiveTab(detail.activeTabId)}
         />
         <Container
           header={

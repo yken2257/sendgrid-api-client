@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import {
   AppLayout,
@@ -10,28 +10,20 @@ import {
   SpaceBetween,
 } from "@cloudscape-design/components";
 
-import ResponseContainer from "./components/ResponseContainer";
-import DebugContainer from "./components/DebugContainer";
-import RequestForm from "./components/RequestForm";
-import CustomRequestForm from "./components/CustomRequestForm";
-import Navigation from "./components/ApiSideNavigation";
-import NavigationBar from "./components/NavigationBar";
-import { apiDetailArray, apiSearchItemsArray } from "./parseOpenApi"
-import ApiKeyMordal from "./components/ApiKeyModal";
+import ResponseContainer from "./ResponseContainer";
+import DebugContainer from "./DebugContainer";
+import CustomRequestForm from "./CustomRequestForm";
+import ApiSideNavigation from "./ApiSideNavigation";
+import { apiDetailArray, apiSearchItemsArray } from "../parseOpenApi"
 
-export default function App(props) {
+export default function CustomApiClient() {
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchText, setSearchText] = useState("");
-  const [api, setApi] = useState();
-  const [apiKey, setApiKey] = useState("API_KEY");
-  const [viewApIkeyModal, setViewApIkeyModal] = useState(false);
   const [request, setRequest] = useState({
     urlInput: "",
     urlEncoded: "",
     method: { value: "GET" },
     headers: [
-      { name: "Authorization", value: `Bearer ${apiKey}`, included: true, canEditKey: true, canDelete: true },
       { name: "Content-Type", value: "application/json", included: true, canEditKey: true, canDelete: true }
     ],
     queryParams: [],
@@ -45,77 +37,6 @@ export default function App(props) {
   const [response, setResponse] = useState();
   const [fetchFailed, setFetchFailed] = useState();
   
-  useEffect(() => {
-    const regex = /\/api\/v3\/([^/]+)(?:\/|$)/;
-    const match = location.pathname.match(regex);
-    if (match) {
-      const api = apiDetailArray.find(obj => obj.operationId === match[1]);
-      let body = {};
-      if (api) {
-        if ('requestBody' in api && 'content' in api.requestBody && "application/json" in api.requestBody.content) {
-          if ('example' in api.requestBody.content["application/json"]) {
-            body = api.requestBody.content["application/json"]["example"]
-          } else if ('example' in api.requestBody.content["application/json"]["schema"]) {
-            if ('schema' in api.requestBody.content["application/json"]) {
-              body = api.requestBody.content["application/json"]["schema"]["example"]
-            }
-          }  
-        }
-        const queries = [];
-        const pathParam = [];
-        const authVal = request.headers[0].name == "Authorization" ? request.headers[0].value : `Bearer ${apiKey}`
-        const headers = [
-          { name: "Authorization", value: authVal, included: true, canEditKey: false, canDelete: true },
-          { name: "Content-Type", value: "application/json", included: true, canEditKey: false, canDelete: true }    
-        ];
-        if ('parameters' in api) {
-          api.parameters.forEach((param) => {
-            if (param.in === 'query') {
-              queries.push({
-                name: param.name,
-                value: 'example' in param ? param.example : "",
-                included: ('required' in param && param.required),
-                canEditKey: false,
-                canDelete: false,
-                description: 'description' in param ? param.description : null
-              });
-            } else if (param.in === 'header') {
-              if (param.name !== 'Authorization') {
-                headers.push({
-                  name: param.name,
-                  value: 'example' in param ? param.example : "",
-                  included: ('required' in param && param.required),
-                  canEditKey: false,
-                  canDelete: false,
-                  description: 'description' in param ? param.description : null
-                });  
-              }
-            }
-          })
-        }
-        const hasPathParam = api.path.match(/{(.*?)}/);
-        if (hasPathParam) {
-          pathParam.push({
-            name: hasPathParam[1],
-            value: ""
-          });
-        }
-        setApi(api);
-        setRequest((prevRequest) => ({
-          ...prevRequest,
-          urlInput: api.path,
-          method: {value: api.method},
-          headers: headers,
-          queryParams: queries,
-          pathParam: pathParam,
-          bodyInput: JSON.stringify(body, null, 2)
-        }));
-      }
-    }
-    setResponse();
-    setFetchFailed();
-  }, [location.pathname]);
-
   useEffect(() => {
     try {
       const oldUrl = new URL(request.urlInput);
@@ -246,40 +167,9 @@ export default function App(props) {
     }
   };
 
-  const handleViewApiKeyMordal = () => {
-    setViewApIkeyModal(true);
-  }
-
-  const handleChangeApiKey = (value) => {
-    setApiKey(value);
-    const newHeaders = request.headers;
-    if (request.headers[0].name == "Authorization") {
-      newHeaders[0] = { 
-        name: "Authorization", 
-        value: `Bearer ${value}`, 
-        included: true, 
-        canEditKey: false, 
-        canDelete: true 
-      }
-    }
-    handleRequestChange("headers", newHeaders);
-  }
-
   const copyToClipboard = async (text) => {
     await global.navigator.clipboard.writeText(text);
   };
-
-  const NotFound = (
-    <Flashbar
-      items={[{
-      header: "Not Found",
-      type: "error",
-      content: "Failed to load data",
-      dismissible: false,
-      id: "not_found"
-      }]}
-    />
-  );
 
   const FetchFailFlash = (
     <Flashbar
@@ -294,34 +184,8 @@ export default function App(props) {
     />
   );
 
-  const ApiContent = apiDetailArray.map((api) =>
-    <Route 
-      key={api.operationId}
-      path={api.docPath} 
-      element={
-        <SpaceBetween size="l">
-          <RequestForm
-            api={api}
-            request={request}
-            onRequestChange={handleRequestChange}
-            onBodyChange={handleBodyChange}
-            onSubmitRequest={handleSubmit}
-            onCopy={() => copyToClipboard(request.curl)}
-          />
-          {response && 
-            <ResponseContainer 
-              response={response}
-              onCopy={() => copyToClipboard(response.body)}
-            />
-          }
-          {fetchFailed && FetchFailFlash} 
-          {process.env.ENV === "DEV" && <DebugContainer request={request} api={api}/>}
-        </SpaceBetween>
-      }
-    />
-  );
-
-  const CustomRequestContent = (
+  const CustomRequestContent = () => {
+    return (
       <SpaceBetween size="l">
         <CustomRequestForm
           request={request}
@@ -339,22 +203,14 @@ export default function App(props) {
         {fetchFailed && FetchFailFlash} 
         {process.env.ENV === "DEV" && <DebugContainer request={request} /> }
         </SpaceBetween>
-    );
+    );    
+  }
 
   return (
     <>
-      {/* <NavigationBar
-        onViewApiKeyMordal={handleViewApiKeyMordal}
-      /> */}
-      <ApiKeyMordal
-        visible={viewApIkeyModal}
-        apiKey={apiKey}
-        onChangeApiKey={(value) => handleChangeApiKey(value)}
-        onDismissApiKeyMordal={() => setViewApIkeyModal(false)}  
-      />
       <AppLayout
         toolsHide={true}
-        navigation={<Navigation onViewApiKeyMordal={handleViewApiKeyMordal} />}
+        navigation={<ApiSideNavigation/>}
         content={
           <ContentLayout
             header={
@@ -382,14 +238,7 @@ export default function App(props) {
               </SpaceBetween>
             }
           >
-            <Routes>
-              <Route path="/" element={CustomRequestContent} />
-              <Route path="api/custom" element={CustomRequestContent} />
-              <Route path="api/v3/">
-                {ApiContent}
-              </Route>
-              <Route path="*" element={NotFound} />
-            </Routes>
+            <CustomRequestContent/>
           </ContentLayout>
         }
       />
