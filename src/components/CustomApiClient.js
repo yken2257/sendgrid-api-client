@@ -10,16 +10,16 @@ import {
   SpaceBetween,
 } from "@cloudscape-design/components";
 
-import ResponseContainer from "./components/ResponseContainer";
-import DebugContainer from "./components/DebugContainer";
-import RequestForm from "./components/RequestForm";
-import CustomRequestForm from "./components/CustomRequestForm";
-import Navigation from "./components/ApiSideNavigation";
-import NavigationBar from "./components/NavigationBar";
-import { apiDetailArray, apiSearchItemsArray } from "./parseOpenApi"
-import ApiKeyMordal from "./components/ApiKeyModal";
+import ResponseContainer from "./ResponseContainer";
+import DebugContainer from "./DebugContainer";
+import RequestForm from "./RequestForm";
+import CustomRequestForm from "./CustomRequestForm";
+import Navigation from "./ApiSideNavigation";
+import NavigationBar from "./NavigationBar";
+import { apiDetailArray, apiSearchItemsArray } from "../parseOpenApi"
+import ApiKeyMordal from "./ApiKeyModal";
 
-export default function App() {
+export default function CustomApiClient() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchText, setSearchText] = useState("");
@@ -322,36 +322,27 @@ export default function App() {
   );
 
   const CustomRequestContent = (
-      <SpaceBetween size="l">
-        <CustomRequestForm
-          request={request}
-          onRequestChange={handleRequestChange}
-          onBodyChange={handleBodyChange}
-          onSubmitRequest={handleSubmit}
-          onCopy={() => copyToClipboard(request.curl)}
+    <SpaceBetween size="l">
+      <CustomRequestForm
+        request={request}
+        onRequestChange={handleRequestChange}
+        onBodyChange={handleBodyChange}
+        onSubmitRequest={handleSubmit}
+        onCopy={() => copyToClipboard(request.curl)}
+      />
+      {response && 
+        <ResponseContainer 
+          response={response}
+          onCopy={() => copyToClipboard(response.body)}
         />
-        {response && 
-          <ResponseContainer 
-            response={response}
-            onCopy={() => copyToClipboard(response.body)}
-          />
-        }
-        {fetchFailed && FetchFailFlash} 
-        {process.env.ENV === "DEV" && <DebugContainer request={request} /> }
-        </SpaceBetween>
-    );
+      }
+      {fetchFailed && FetchFailFlash} 
+      {process.env.ENV === "DEV" && <DebugContainer request={request} /> }
+      </SpaceBetween>
+  );
 
   return (
     <>
-      <NavigationBar
-        onViewApiKeyMordal={handleViewApiKeyMordal}
-      />
-      <ApiKeyMordal
-        visible={viewApIkeyModal}
-        apiKey={apiKey}
-        onChangeApiKey={(value) => handleChangeApiKey(value)}
-        onDismissApiKeyMordal={() => setViewApIkeyModal(false)}  
-      />
       <AppLayout
         toolsHide={true}
         navigation={<Navigation />}
@@ -382,14 +373,7 @@ export default function App() {
               </SpaceBetween>
             }
           >
-            <Routes>
-              <Route path="/" element={CustomRequestContent} />
-              <Route path="custom" element={CustomRequestContent} />
-              <Route path="apiv3/">
-                {ApiContent}
-              </Route>
-              <Route path="*" element={NotFound} />
-            </Routes>
+            {CustomRequestContent}
           </ContentLayout>
         }
       />
