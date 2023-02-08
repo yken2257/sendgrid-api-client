@@ -34,7 +34,7 @@ const navBaseArray = apiDetailArray.map(
   obj => ({ 
       type: "link",
       text: obj.summary,
-      href: `#/apiv3/${obj.operationId}`,
+      href: `#/api/v3/${obj.operationId}`,
       section: obj.tags[0]
     })
 );
@@ -70,13 +70,13 @@ export const apiSearchItemsArray = apiDetailArray.map(
     description: obj.description.split("\n")[0],
     labelTag: `${obj.method.toUpperCase()} ${obj.path}`,
     tags: obj.tags,
-    docPath: `/apiv3/${obj.operationId}`
+    docPath: `/api/v3/${obj.operationId}`
   })
 );
 
 apiSearchItemsArray.unshift({
     value: "Custom",
     iconName: "share",
-    description: "Custom HTTP request",
-    docPath: "/custom"
+    description: "Custom HTTP Request",
+    docPath: "/api/custom"
 });

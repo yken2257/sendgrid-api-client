@@ -35,12 +35,12 @@ export default function NavigationBar(props) {
                                 {
                                     id: "sendgrid-api-client",
                                     text: "Web API v3",
-                                    href: "#/apiv3/POST_mail-send"
+                                    href: "#/api/v3/GET_legacy-activity"
                                 },
                                 {
                                     id: "custom-api-client",
-                                    text: "Custom request",
-                                    href: "#/custom"
+                                    text: "Custom Request",
+                                    href: "#/api/custom"
                                 },
                                 {
                                     id: "reseller-api-client",
@@ -48,6 +48,17 @@ export default function NavigationBar(props) {
                                     disabled: true,
                                     disabledReason: "Unauthorized"
                                 }
+                            ]
+                        },
+                        {
+                            id: "tool-group",
+                            text: "Tools",
+                            items: [
+                                {
+                                    id: "json-formatter",
+                                    text: "JSON Formatter",
+                                    href: "#/json"
+                                },
                             ]
                         }
                     ]

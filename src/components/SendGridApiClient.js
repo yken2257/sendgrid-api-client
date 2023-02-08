@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useEffect, useContext } from "react";
+import { useNavigate, useLocation, useLoaderData } from "react-router-dom";
 
 import {
   AppLayout,
@@ -10,21 +10,21 @@ import {
   SpaceBetween,
 } from "@cloudscape-design/components";
 
-import ResponseContainer from "./components/ResponseContainer";
-import DebugContainer from "./components/DebugContainer";
-import RequestForm from "./components/RequestForm";
-import CustomRequestForm from "./components/CustomRequestForm";
-import Navigation from "./components/ApiSideNavigation";
-import NavigationBar from "./components/NavigationBar";
-import { apiDetailArray, apiSearchItemsArray } from "./parseOpenApi"
-import ApiKeyMordal from "./components/ApiKeyModal";
+import ResponseContainer from "./ResponseContainer";
+import DebugContainer from "./DebugContainer";
+import RequestForm from "./RequestForm";
+import ApiSideNavigation from "./ApiSideNavigation";
+import { apiSearchItemsArray } from "../parseOpenApi"
+import { ApiKeyContext } from "./ApiKeyProvider";
 
-export default function App() {
+export default function SendGridApiClient() {
+
+  const api = useLoaderData();
+  const { apiKey, setApiKey } = useContext(ApiKeyContext);
+
   const navigate = useNavigate();
   const location = useLocation();
   const [searchText, setSearchText] = useState("");
-  const [api, setApi] = useState();
-  const [apiKey, setApiKey] = useState("API_KEY");
   const [viewApIkeyModal, setViewApIkeyModal] = useState(false);
   const [request, setRequest] = useState({
     urlInput: "",
@@ -44,77 +44,85 @@ export default function App() {
   });
   const [response, setResponse] = useState();
   const [fetchFailed, setFetchFailed] = useState();
+  const [activeTab, setActiveTab] = useState("header");
   
   useEffect(() => {
-    const regex = /\/apiv3\/([^/]+)(?:\/|$)/;
-    const match = location.pathname.match(regex);
-    if (match) {
-      const api = apiDetailArray.find(obj => obj.operationId === match[1]);
-      let body = {};
-      if (api) {
-        if ('requestBody' in api && 'content' in api.requestBody && "application/json" in api.requestBody.content) {
-          if ('example' in api.requestBody.content["application/json"]) {
-            body = api.requestBody.content["application/json"]["example"]
-          } else if ('example' in api.requestBody.content["application/json"]["schema"]) {
-            if ('schema' in api.requestBody.content["application/json"]) {
-              body = api.requestBody.content["application/json"]["schema"]["example"]
-            }
-          }  
+    let body = {};
+    if ('requestBody' in api && 'content' in api.requestBody && "application/json" in api.requestBody.content) {
+      if ('example' in api.requestBody.content["application/json"]) {
+        body = api.requestBody.content["application/json"]["example"]
+      } else if ('example' in api.requestBody.content["application/json"]["schema"]) {
+        if ('schema' in api.requestBody.content["application/json"]) {
+          body = api.requestBody.content["application/json"]["schema"]["example"]
         }
-        const queries = [];
-        const pathParam = [];
-        const authVal = request.headers[0].name == "Authorization" ? request.headers[0].value : `Bearer ${apiKey}`
-        const headers = [
-          { name: "Authorization", value: authVal, included: true, canEditKey: false, canDelete: true },
-          { name: "Content-Type", value: "application/json", included: true, canEditKey: false, canDelete: true }    
-        ];
-        if ('parameters' in api) {
-          api.parameters.forEach((param) => {
-            if (param.in === 'query') {
-              queries.push({
-                name: param.name,
-                value: 'example' in param ? param.example : "",
-                included: ('required' in param && param.required),
-                canEditKey: false,
-                canDelete: false,
-                description: 'description' in param ? param.description : null
-              });
-            } else if (param.in === 'header') {
-              if (param.name !== 'Authorization') {
-                headers.push({
-                  name: param.name,
-                  value: 'example' in param ? param.example : "",
-                  included: ('required' in param && param.required),
-                  canEditKey: false,
-                  canDelete: false,
-                  description: 'description' in param ? param.description : null
-                });  
-              }
-            }
-          })
-        }
-        const hasPathParam = api.path.match(/{(.*?)}/);
-        if (hasPathParam) {
-          pathParam.push({
-            name: hasPathParam[1],
-            value: ""
+      }  
+    }
+    const queries = [];
+    const pathParam = [];
+    const headers = [
+      { name: "Authorization", value: `Bearer ${apiKey}`, included: true, canEditKey: false, canDelete: true },
+      { name: "Content-Type", value: "application/json", included: true, canEditKey: false, canDelete: true }    
+    ];
+    if ('parameters' in api) {
+      api.parameters.forEach((param) => {
+        if (param.in === 'query') {
+          queries.push({
+            name: param.name,
+            value: 'example' in param ? param.example : "",
+            included: ('required' in param && param.required),
+            canEditKey: false,
+            canDelete: false,
+            description: 'description' in param ? param.description : null
           });
+        } else if (param.in === 'header') {
+          if (param.name !== 'Authorization') {
+            headers.push({
+              name: param.name,
+              value: 'example' in param ? param.example : "",
+              included: ('required' in param && param.required),
+              canEditKey: false,
+              canDelete: false,
+              description: 'description' in param ? param.description : null
+            });  
+          }
         }
-        setApi(api);
-        setRequest((prevRequest) => ({
-          ...prevRequest,
-          urlInput: api.path,
-          method: {value: api.method},
-          headers: headers,
-          queryParams: queries,
-          pathParam: pathParam,
-          bodyInput: JSON.stringify(body, null, 2)
-        }));
+      })
+    }
+  
+    const hasPathParam = api.path.match(/{(.*?)}/);
+    if (hasPathParam) {
+      pathParam.push({
+        name: hasPathParam[1],
+        value: ""
+      });
+    }
+
+    setRequest((prevRequest) => ({
+      ...prevRequest,
+      urlInput: api.path,
+      method: { value: api.method },
+      headers: headers,
+      queryParams: queries,
+      pathParam: pathParam,
+      bodyInput: JSON.stringify(body, null, 2),
+    }));
+    setActiveTab("header");
+
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const newHeaders = request.headers;
+    if (request.headers[0].name == "Authorization") {
+      newHeaders[0] = { 
+        name: "Authorization", 
+        value: `Bearer ${apiKey}`, 
+        included: true, 
+        canEditKey: false, 
+        canDelete: true 
       }
     }
-    setResponse();
-    setFetchFailed();
-  }, [location.pathname]);
+    handleRequestChange("headers", newHeaders);
+  }, [apiKey]);
 
   useEffect(() => {
     try {
@@ -173,7 +181,7 @@ export default function App() {
       curl = curl.trim().slice(0,-1);
     }
     handleRequestChange("curl", curl);
-  }, [request.urlEncoded, request.headers, request.queryParams, request.pathParam, request.body]);
+  }, [request.urlEncoded, request.headers, request.queryParams, request.pathParam, request.body, apiKey]);
 
   useEffect(() => {
     if (request.bodyInput !== "") {
@@ -250,36 +258,23 @@ export default function App() {
     setViewApIkeyModal(true);
   }
 
-  const handleChangeApiKey = (value) => {
-    setApiKey(value);
-    const newHeaders = request.headers;
-    if (request.headers[0].name == "Authorization") {
-      newHeaders[0] = { 
-        name: "Authorization", 
-        value: `Bearer ${value}`, 
-        included: true, 
-        canEditKey: false, 
-        canDelete: true 
-      }
-    }
-    handleRequestChange("headers", newHeaders);
-  }
-
   const copyToClipboard = async (text) => {
     await global.navigator.clipboard.writeText(text);
   };
 
-  const NotFound = (
-    <Flashbar
-      items={[{
-      header: "Not Found",
-      type: "error",
-      content: "Failed to load data",
-      dismissible: false,
-      id: "not_found"
-      }]}
-    />
-  );
+  const NotFound = () => {
+    return (
+      <Flashbar
+        items={[{
+        header: "Not Found",
+        type: "error",
+        content: "Failed to load data",
+        dismissible: false,
+        id: "not_found"
+        }]}
+      />
+    );
+  };
 
   const FetchFailFlash = (
     <Flashbar
@@ -294,67 +289,34 @@ export default function App() {
     />
   );
 
-  const ApiContent = apiDetailArray.map((api) =>
-    <Route 
-      key={api.operationId}
-      path={api.docPath} 
-      element={
-        <SpaceBetween size="l">
-          <RequestForm
-            api={api}
-            request={request}
-            onRequestChange={handleRequestChange}
-            onBodyChange={handleBodyChange}
-            onSubmitRequest={handleSubmit}
-            onCopy={() => copyToClipboard(request.curl)}
-          />
-          {response && 
-            <ResponseContainer 
-              response={response}
-              onCopy={() => copyToClipboard(response.body)}
-            />
-          }
-          {fetchFailed && FetchFailFlash} 
-          {process.env.ENV === "DEV" && <DebugContainer request={request} api={api}/>}
-        </SpaceBetween>
-      }
-    />
-  );
-
-  const CustomRequestContent = (
-      <SpaceBetween size="l">
-        <CustomRequestForm
-          request={request}
-          onRequestChange={handleRequestChange}
-          onBodyChange={handleBodyChange}
-          onSubmitRequest={handleSubmit}
-          onCopy={() => copyToClipboard(request.curl)}
+  const apiContent = (
+    <SpaceBetween size="l">
+      <RequestForm
+        api={api}
+        request={request}
+        activeTab={activeTab}
+        onSetActiveTab={(value) => setActiveTab(value)}
+        onRequestChange={handleRequestChange}
+        onBodyChange={handleBodyChange}
+        onSubmitRequest={handleSubmit}
+        onCopy={() => copyToClipboard(request.curl)}
+      />
+      {response && 
+        <ResponseContainer 
+          response={response}
+          onCopy={() => copyToClipboard(response.body)}
         />
-        {response && 
-          <ResponseContainer 
-            response={response}
-            onCopy={() => copyToClipboard(response.body)}
-          />
-        }
-        {fetchFailed && FetchFailFlash} 
-        {process.env.ENV === "DEV" && <DebugContainer request={request} /> }
-        </SpaceBetween>
-    );
+      }
+      {fetchFailed && FetchFailFlash} 
+      {process.env.ENV === "DEV" && <DebugContainer request={request} api={api}/>}
+    </SpaceBetween>
+  );
 
   return (
     <>
-      <NavigationBar
-        onViewApiKeyMordal={handleViewApiKeyMordal}
-      />
-      <ApiKeyMordal
-        visible={viewApIkeyModal}
-        apiKey={apiKey}
-        onChangeApiKey={(value) => handleChangeApiKey(value)}
-        onDismissApiKeyMordal={() => setViewApIkeyModal(false)}  
-      />
       <AppLayout
         toolsHide={true}
-        navigation={<Navigation />}
+        navigation={<ApiSideNavigation onViewApiKeyMordal={handleViewApiKeyMordal} />}
         content={
           <ContentLayout
             header={
@@ -382,14 +344,7 @@ export default function App() {
               </SpaceBetween>
             }
           >
-            <Routes>
-              <Route path="/" element={CustomRequestContent} />
-              <Route path="custom" element={CustomRequestContent} />
-              <Route path="apiv3/">
-                {ApiContent}
-              </Route>
-              <Route path="*" element={NotFound} />
-            </Routes>
+            {apiContent}
           </ContentLayout>
         }
       />
