@@ -9,6 +9,7 @@ import CustomApiClient from './components/CustomApiClient';
 import Home from "./components/Home";
 import CommonNavBar from "./components/CommonNavBar";
 import ErrorPage from "./components/ErrorPage";
+import JsonFormatter from "./components/JsonFomatter";
 
 
 const apiDetailLoader = async ({ params }) => {
@@ -41,7 +42,11 @@ const router = createHashRouter([
         path: "/api/v3/:docPath",
         element: <SendGridApiClient/>,
         loader: apiDetailLoader,
-      },        
+      },
+      {
+        path: "/json",
+        element: <JsonFormatter/>,
+      },
     ]
   },
 ]);
