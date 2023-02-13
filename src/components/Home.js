@@ -66,6 +66,13 @@ export default function Home() {
             href: "#",
           },
           {
+            name: "Stats Viewer",
+            alt: "stats-viewer",
+            description: "アカウントのGlobal Statsを見る",
+            icon: "angle-up",
+            href: "#/stats",
+          },
+          {
             name: "Email Decoder",
             alt: "email-decoder",
             description: "メールヘッダをデコードする",

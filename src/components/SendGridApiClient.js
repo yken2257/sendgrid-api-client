@@ -31,8 +31,8 @@ export default function SendGridApiClient() {
     urlEncoded: "",
     method: { value: "GET" },
     headers: [
-      { name: "Authorization", value: `Bearer ${apiKey}`, included: true, canEditKey: true, canDelete: true },
-      { name: "Content-Type", value: "application/json", included: true, canEditKey: true, canDelete: true }
+      { name: "Authorization", value: `Bearer ${apiKey}`, included: true, canEditKey: false, canDelete: false },
+      { name: "Content-Type", value: "application/json", included: true, canEditKey: false, canDelete: false }
     ],
     queryParams: [],
     pathParam: [],
@@ -60,8 +60,8 @@ export default function SendGridApiClient() {
     const queries = [];
     const pathParam = [];
     const headers = [
-      { name: "Authorization", value: `Bearer ${apiKey}`, included: true, canEditKey: false, canDelete: true },
-      { name: "Content-Type", value: "application/json", included: true, canEditKey: false, canDelete: true }    
+      { name: "Authorization", value: `Bearer ${apiKey}`, included: true, canEditKey: false, canDelete: false },
+      { name: "Content-Type", value: "application/json", included: true, canEditKey: false, canDelete: false }    
     ];
     if ('parameters' in api) {
       api.parameters.forEach((param) => {
@@ -118,7 +118,7 @@ export default function SendGridApiClient() {
         value: `Bearer ${apiKey}`, 
         included: true, 
         canEditKey: false, 
-        canDelete: true 
+        canDelete: false 
       }
     }
     handleRequestChange("headers", newHeaders);
@@ -262,20 +262,6 @@ export default function SendGridApiClient() {
     await global.navigator.clipboard.writeText(text);
   };
 
-  const NotFound = () => {
-    return (
-      <Flashbar
-        items={[{
-        header: "Not Found",
-        type: "error",
-        content: "Failed to load data",
-        dismissible: false,
-        id: "not_found"
-        }]}
-      />
-    );
-  };
-
   const FetchFailFlash = (
     <Flashbar
       items={[{
@@ -323,11 +309,7 @@ export default function SendGridApiClient() {
               <SpaceBetween size="xs">
                 <Header
                   variant="h1"
-                  description={
-                    <>
-                      This React app enables you to access SendGrid with ease.
-                    </>
-                  }
+                  description="SendGrid Web APIのエンドポイントの検索とリクエストツール"
                 >
                   SendGrid API Client
                 </Header>
