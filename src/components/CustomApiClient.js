@@ -15,9 +15,7 @@ import DebugContainer from "./DebugContainer";
 import RequestForm from "./RequestForm";
 import CustomRequestForm from "./CustomRequestForm";
 import Navigation from "./ApiSideNavigation";
-import NavigationBar from "./NavigationBar";
 import { apiDetailArray, apiSearchItemsArray } from "../parseOpenApi"
-import ApiKeyMordal from "./ApiKeyModal";
 
 export default function CustomApiClient() {
   const navigate = useNavigate();
@@ -352,11 +350,7 @@ export default function CustomApiClient() {
               <SpaceBetween size="xs">
                 <Header
                   variant="h1"
-                  description={
-                    <>
-                      This React app enables you to access SendGrid with ease.
-                    </>
-                  }
+                  description="任意のURLに対するHTTPクライアントツール"
                 >
                   SendGrid API Client
                 </Header>

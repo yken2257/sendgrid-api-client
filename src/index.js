@@ -10,6 +10,7 @@ import Home from "./components/Home";
 import CommonNavBar from "./components/CommonNavBar";
 import ErrorPage from "./components/ErrorPage";
 import JsonFormatter from "./components/JsonFomatter";
+import StatsViewer from "./components/StatsViewer";
 
 
 const apiDetailLoader = async ({ params }) => {
@@ -46,6 +47,10 @@ const router = createHashRouter([
       {
         path: "/json",
         element: <JsonFormatter/>,
+      },
+      {
+        path: "/stats",
+        element: <StatsViewer/>,
       },
     ]
   },

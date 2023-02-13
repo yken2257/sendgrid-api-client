@@ -100,15 +100,16 @@ export default function RequestForm(props) {
           />
         </div>
         <Input
-          readOnly={!pair.canEditKey}
           name="name"
           value={pair.name}
           onChange={handleParamChange(index, param, param_name, false)}
+          readOnly={!pair.canEditKey}
         />
         <Input
           name="value"
           value={pair.value}
           onChange={handleParamChange(index, param, param_name, true)}
+          disabled={pair.name=="Authorization"}
         />
         {pair.canDelete && 
           <Button
@@ -118,14 +119,26 @@ export default function RequestForm(props) {
           />
         }
         {pair.description &&
-          <Popover
+        <Popover
           position="right"
           size="small"
           triggerType="custom"
           content={pair.description}
         >
-          <div style={{position: "relative", top: 5, left: 2}}>
+          <div style={{position: "relative", top: 5}}>
             <Button iconName="status-info" variant="inline-icon" />
+          </div>
+        </Popover>
+        }
+        {pair.name == "Authorization" &&
+        <Popover
+          position="right"
+          size="small"
+          triggerType="custom"
+          content="Register your API key from menu bar"
+        >
+          <div style={{position: "relative", top: 5}}>
+            <Button iconName="suggestions" variant="inline-icon" />
           </div>
         </Popover>
         }
