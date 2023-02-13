@@ -57,6 +57,7 @@ export default function JsonFormatter () {
         header={
           <Header
             variant="h1"
+            description="JSONデータの自動整形ツール"
           >
             JSON Formatter
           </Header>
