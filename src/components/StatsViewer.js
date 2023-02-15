@@ -1,4 +1,4 @@
-import  { useState, useContext, useEffect } from "react";
+import  { useState, useContext } from "react";
 import {
   AppLayout,
   Button,
@@ -17,6 +17,7 @@ import {
   Select,
   SideNavigation,
   SpaceBetween,
+  StatusIndicator
 } from "@cloudscape-design/components";
 import { ApiKeyContext } from "./ApiKeyProvider";
 
@@ -263,20 +264,19 @@ export default function StatsViewer () {
                   label="API Key"
                 >
                   <SpaceBetween size="xxs" direction="horizontal">
-                    <Input
-                      value={apiKey}
-                      onChange={event => setApiKey(event.detail.value)}
-                      disabled
-                    />
                     <Popover
+                      dismissButton={false}
                       position="right"
                       size="small"
                       triggerType="custom"
-                      content="Register your API key from menu bar"
+                      content={
+                        <StatusIndicator type="info">Set your API key from menu bar</StatusIndicator>
+                      }
                     >
-                      <div style={{position: "relative", top: 5}}>
-                        <Button iconName="suggestions" variant="inline-icon" />
-                      </div>
+                      <Input
+                        value={apiKey}
+                        disabled
+                      />
                     </Popover>
                   </SpaceBetween>
                 </FormField>

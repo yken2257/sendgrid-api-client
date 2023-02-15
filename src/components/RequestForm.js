@@ -132,10 +132,13 @@ export default function RequestForm(props) {
         }
         {pair.name == "Authorization" &&
         <Popover
+          dismissButton={false}
           position="right"
           size="small"
           triggerType="custom"
-          content="Register your API key from menu bar"
+          content={
+            <StatusIndicator type="info">Set your API key from menu bar</StatusIndicator>
+          }
         >
           <div style={{position: "relative", top: 5}}>
             <Button iconName="suggestions" variant="inline-icon" />
