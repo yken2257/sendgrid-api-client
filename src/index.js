@@ -11,6 +11,7 @@ import CommonNavBar from "./components/CommonNavBar";
 import ErrorPage from "./components/ErrorPage";
 import JsonFormatter from "./components/JsonFomatter";
 import StatsViewer from "./components/StatsViewer";
+import ActivityViewer from "./components/ActivityViewer";
 
 
 const apiDetailLoader = async ({ params }) => {
@@ -52,7 +53,10 @@ const router = createHashRouter([
         path: "/stats",
         element: <StatsViewer/>,
       },
-    ]
+      {
+        path: "/activity",
+        element: <ActivityViewer/>,
+      },    ]
   },
 ]);
 

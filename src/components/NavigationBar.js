@@ -42,16 +42,27 @@ export default function NavigationBar(props) {
                                     href: "#/api/custom"
                                 },
                                 {
-                                    id: "stats-viewer",
-                                    text: "Stats Viewer",
-                                    href: "#/stats"
-                                },
-                                {
                                     id: "reseller-api-client",
                                     text: "Reseller API",
                                     disabled: true,
                                     disabledReason: "Unauthorized"
                                 }
+                            ]
+                        },
+                        {
+                            id: "viewer-group",
+                            text: "Viewer",
+                            items: [
+                                {
+                                    id: "sendgrid-api-client",
+                                    text: "Email Activity",
+                                    href: "#/activity"
+                                },
+                                {
+                                    id: "stats-viewer",
+                                    text: "Global Stats",
+                                    href: "#/stats"
+                                },
                             ]
                         },
                         {
