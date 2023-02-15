@@ -58,12 +58,19 @@ export default function Home() {
             icon: "upload-download",
             href: "#/api/custom",
           },
+          // {
+          //   name: "API Client - Reseller API",
+          //   alt: "reseller-api-client",
+          //   description: "Reseller APIを呼び出す",
+          //   icon: "upload-download",
+          //   href: "#",
+          // },
           {
-            name: "API Client - Reseller API",
-            alt: "reseller-api-client",
-            description: "Reseller APIを呼び出す",
-            icon: "upload-download",
-            href: "#",
+            name: "Activity Viewer",
+            alt: "activity-viewer",
+            description: "アカウントのActivityを見る",
+            icon: "search",
+            href: "#/activity",
           },
           {
             name: "Stats Viewer",
@@ -71,8 +78,7 @@ export default function Home() {
             description: "アカウントのGlobal Statsを見る",
             icon: "angle-up",
             href: "#/stats",
-          },
-          {
+          },          {
             name: "Email Decoder",
             alt: "email-decoder",
             description: "メールヘッダをデコードする",
