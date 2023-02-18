@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-sendgridapiclient-dev-51844-authRole",
+      "UnauthRoleArn": "arn:aws:iam::357294642993:role/amplify-sendgridapiclient-dev-51844-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::357294642993:role/amplify-sendgridapiclient-dev-51844-authRole",
+      "Region": "ap-northeast-1",
+      "DeploymentBucketName": "amplify-sendgridapiclient-dev-51844-deployment",
+      "UnauthRoleName": "amplify-sendgridapiclient-dev-51844-unauthRole",
+      "StackName": "amplify-sendgridapiclient-dev-51844",
+      "StackId": "arn:aws:cloudformation:ap-northeast-1:357294642993:stack/amplify-sendgridapiclient-dev-51844/b7f506d0-af4b-11ed-a0c6-0e9b569d731f",
+      "AmplifyAppId": "dwu9z53aalc51"
+    }
+  }
+}
