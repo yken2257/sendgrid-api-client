@@ -10,6 +10,11 @@
       "StackName": "amplify-sendgridapiclient-dev-51844",
       "StackId": "arn:aws:cloudformation:ap-northeast-1:357294642993:stack/amplify-sendgridapiclient-dev-51844/b7f506d0-af4b-11ed-a0c6-0e9b569d731f",
       "AmplifyAppId": "dwu9z53aalc51"
+    },
+    "categories": {
+      "function": {
+        "EmailDecodeHelper": {}
+      }
     }
   }
 }
