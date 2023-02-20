@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "paths": {
+    "/decode": {
+      "name": "/decode",
+      "lambdaFunction": "emaildecode",
+      "permissions": {
+        "setting": "open"
+      }
+    }
+  }
+}

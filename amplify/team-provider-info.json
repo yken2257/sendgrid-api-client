@@ -13,7 +13,13 @@
     },
     "categories": {
       "function": {
-        "EmailDecodeHelper": {}
+        "emaildecode": {
+          "deploymentBucketName": "amplify-sendgridapiclient-dev-51844-deployment",
+          "s3Key": "amplify-builds/emaildecode-642b422f4e585531656e-build.zip"
+        }
+      },
+      "api": {
+        "EmailDecodeApi": {}
       }
     }
   }

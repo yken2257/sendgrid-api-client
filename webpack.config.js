@@ -41,7 +41,10 @@ module.exports = () => {
       extensions: ['.jsx', '.js', '.json'],
       alias: {
         http: 'stream-http',
-        https: 'https-browserify'
+        https: 'https-browserify',
+        stream: "stream-browserify",
+        crypto: "crypto-browserify",
+        path: "path-browserify"
       }
     },
     plugins: [
