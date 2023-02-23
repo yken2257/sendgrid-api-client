@@ -12,6 +12,7 @@ import ErrorPage from "./components/ErrorPage";
 import JsonFormatter from "./components/JsonFomatter";
 import StatsViewer from "./components/StatsViewer";
 import ActivityViewer from "./components/ActivityViewer";
+import EmailDecoder from "./components/EmailDecoder";
 
 
 const apiDetailLoader = async ({ params }) => {
@@ -56,7 +57,12 @@ const router = createHashRouter([
       {
         path: "/activity",
         element: <ActivityViewer/>,
-      },    ]
+      },
+      {
+        path: "/email-decode",
+        element: <EmailDecoder/>,
+      },
+    ]
   },
 ]);
 

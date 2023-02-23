@@ -78,12 +78,13 @@ export default function Home() {
             description: "アカウントのGlobal Statsを見る",
             icon: "angle-up",
             href: "#/stats",
-          },          {
-            name: "Email Decoder",
-            alt: "email-decoder",
-            description: "メールヘッダをデコードする",
+          },          
+          {
+            name: "Email Analyzer",
+            alt: "email-analyzer",
+            description: "メールソースをデコードする",
             icon: "envelope",
-            href: "#",
+            href: "#/email-decode",
           },
           {
             name: "JSON Formatter",
