@@ -80,9 +80,9 @@ export default function Home() {
             href: "#/stats",
           },          
           {
-            name: "Email Decoder",
-            alt: "email-decoder",
-            description: "メールヘッダをデコードする",
+            name: "Email Analyzer",
+            alt: "email-analyzer",
+            description: "メールソースをデコードする",
             icon: "envelope",
             href: "#/email-decode",
           },

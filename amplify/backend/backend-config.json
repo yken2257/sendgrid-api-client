@@ -1,44 +1,5 @@
 {
-  "api": {
-    "EmailDecodeApi": {
-      "dependsOn": [
-        {
-          "attributes": [
-            "Name",
-            "Arn"
-          ],
-          "category": "function",
-          "resourceName": "emaildecode"
-        }
-      ],
-      "providerPlugin": "awscloudformation",
-      "service": "API Gateway"
-    }
-  },
+  "api": {},
   "auth": {},
-  "function": {
-    "emaildecode": {
-      "build": true,
-      "providerPlugin": "awscloudformation",
-      "service": "Lambda"
-    }
-  },
-  "parameters": {
-    "AMPLIFY_function_emaildecode_deploymentBucketName": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "emaildecode"
-        }
-      ]
-    },
-    "AMPLIFY_function_emaildecode_s3Key": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "emaildecode"
-        }
-      ]
-    }
-  }
+  "function": {}
 }

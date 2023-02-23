@@ -71,7 +71,7 @@ export default function NavigationBar(props) {
                             items: [
                                 {
                                     id: "email-decoder",
-                                    text: "Email Decoder",
+                                    text: "Email Analyzer",
                                     href: "#/email-decode"
                                 },
                                 {
