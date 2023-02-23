@@ -70,6 +70,11 @@ export default function NavigationBar(props) {
                             text: "Tools",
                             items: [
                                 {
+                                    id: "email-decoder",
+                                    text: "Email Analyzer",
+                                    href: "#/email-decode"
+                                },
+                                {
                                     id: "json-formatter",
                                     text: "JSON Formatter",
                                     href: "#/json"

@@ -10,10 +10,10 @@
 	},
 	"features": {
 		"ghcr.io/devcontainers/features/aws-cli:1": {},
+		"ghcr.io/devcontainers/features/python:1": {},
 		"ghcr.io/devcontainers-contrib/features/amplify-cli:2": {},
 		"ghcr.io/devcontainers-contrib/features/curl-homebrew:1": {}
 	}
-
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 
