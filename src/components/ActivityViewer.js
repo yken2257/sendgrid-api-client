@@ -195,6 +195,7 @@ export default function ActivityViewer () {
       notifications={fetchFailed && <FailFlash errMsg={errMsg} />}
       content={
         <Table
+          sortingDisabled
           items={items}
           columnDefinitions={COLUMN_DIFINITIONS}
           visibleColumns={preferences.visibleContent}

@@ -42,6 +42,11 @@ export default function NavigationBar(props) {
                                     href: "#/api/custom"
                                 },
                                 {
+                                    id: "mail-send-helper",
+                                    text: "Mail Send Helper",
+                                    href: "#/mailsend"
+                                },
+                                {
                                     id: "reseller-api-client",
                                     text: "Reseller API",
                                     disabled: true,

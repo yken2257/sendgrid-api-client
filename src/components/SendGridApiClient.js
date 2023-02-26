@@ -14,7 +14,7 @@ import ResponseContainer from "./ResponseContainer";
 import DebugContainer from "./DebugContainer";
 import RequestForm from "./RequestForm";
 import ApiSideNavigation from "./ApiSideNavigation";
-import { apiSearchItemsArray } from "../parseOpenApi"
+import { apiSearchItemsArray } from "../generate-metadata"
 import { ApiKeyContext } from "./ApiKeyProvider";
 
 export default function SendGridApiClient() {

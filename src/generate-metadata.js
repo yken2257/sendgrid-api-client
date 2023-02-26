@@ -1,5 +1,16 @@
 import SwaggerParser from "@apidevtools/swagger-parser";
 import sendgrid from "./sendgrid-oai-v3.json"
+import { samples } from "./mailsend-requests-sample"
+
+export const mailSendNavArray = samples.map(
+  obj => ({ 
+      type: "link",
+      text: obj.name,
+      href: `#/mailsend/${obj.id}`
+    })
+);
+
+export const mailSendSampleArray = samples;
 
 const parsed = await SwaggerParser.validate(sendgrid, {
   parse: {
@@ -25,7 +36,7 @@ for (const path in api) {
         path: `https://api.sendgrid.com/v3${path}`, 
         method: method.toUpperCase(), 
         docPath: `${api[path][method]["operationId"]}`,
-         });  
+      });  
     }
   }
 }

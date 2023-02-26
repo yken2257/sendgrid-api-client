@@ -262,7 +262,6 @@ export default function EmailDecoder () {
                       Analyze
                     </Button>
                   </SpaceBetween>
-
                 }
               >
                 <FormField
