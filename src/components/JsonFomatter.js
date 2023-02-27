@@ -11,6 +11,7 @@ import {
   SpaceBetween,
   StatusIndicator
 } from "@cloudscape-design/components";
+import MenuSideNavigation from "./MenuSideNavigation";
 
 import ace from "ace-builds/src-noconflict/ace";
 import 'ace-builds/webpack-resolver'
@@ -47,11 +48,7 @@ export default function JsonFormatter () {
   return (
     <AppLayout
     toolsHide={true}
-    navigation={
-      <SideNavigation
-        activeHref={document.location.hash}
-        header={{ href: "/#/index", text: "Home" }}
-      />}
+    navigation={<MenuSideNavigation/>}
     content={
       <ContentLayout
         header={

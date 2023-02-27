@@ -66,6 +66,13 @@ export default function Home() {
           //   href: "#",
           // },
           {
+            name: "Mail Send Helper",
+            alt: "mail-send-helper",
+            description: "JSONテンプレートを使ってMail Send APIを呼ぶ",
+            icon: "upload-download",
+            href: "#/mailsend",
+          },
+          {
             name: "Activity Viewer",
             alt: "activity-viewer",
             description: "アカウントのActivityを見る",

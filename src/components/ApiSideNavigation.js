@@ -1,5 +1,5 @@
 import { SideNavigation } from "@cloudscape-design/components";
-import { navigationArray } from "../parseOpenApi";
+import { navigationArray } from "../generate-metadata";
 
 export default function ApiSideNavigation() {
   return (

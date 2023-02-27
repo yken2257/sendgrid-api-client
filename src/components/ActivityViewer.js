@@ -5,8 +5,8 @@ import {
   Button,
   Box,
   CollectionPreferences,
-  DateRangePicker,
   Flashbar,
+  FormField,
   Header,
   Input,
   Pagination,
@@ -18,6 +18,7 @@ import {
   Table
 } from "@cloudscape-design/components";
 import { ApiKeyContext } from "./ApiKeyProvider";
+import MenuSideNavigation from "./MenuSideNavigation";
 import { 
   PAGE_SIZE_OPTIONS, 
   VISIBLE_CONTENT_OPTIONS, 
@@ -186,15 +187,11 @@ export default function ActivityViewer () {
     <AppLayout
       toolsHide={true}
       contentType="table"
-      navigation={
-        <SideNavigation
-          activeHref={document.location.hash}
-          header={{ href: "/#/index", text: "Home" }}
-        />
-      }
+      navigation={<MenuSideNavigation/>}
       notifications={fetchFailed && <FailFlash errMsg={errMsg} />}
       content={
         <Table
+          sortingDisabled
           items={items}
           columnDefinitions={COLUMN_DIFINITIONS}
           visibleColumns={preferences.visibleContent}
@@ -210,25 +207,33 @@ export default function ActivityViewer () {
               description="Email Activityの表示検索ツール"
               counter={`(${data.length})`}
               actions={
-                <SpaceBetween direction="horizontal" size="m">
-                  <Popover
-                    dismissButton={false}
-                    size="small"
-                    triggerType="custom"
-                    content={
-                      <StatusIndicator type="info">Set your API key from menu bar</StatusIndicator>
-                    }
+                
+                  <FormField
+                    label="API Key"
+                    errorText={apiKey.match(/^SG\.[^.]+\.[^.]+$/)? "" : "Set API key in menu bar."}
                   >
-                    <Input value={apiKey} disabled/>
-                  </Popover>
-                  <Button
-                   variant="primary"
-                   onClick={handleSubmit}
-                   disabled={!apiKey.match(/^SG\.[^.]+\.[^.]+$/)} 
-                  >
-                    Fetch data
-                  </Button>
-                </SpaceBetween>
+                    <SpaceBetween direction="horizontal" size="m">
+                    <Popover
+                      dismissButton={false}
+                      size="small"
+                      triggerType="custom"
+                      content={
+                        <StatusIndicator type="info">Set in menu bar</StatusIndicator>
+                      }
+                    >
+                      <Input value={apiKey} disabled/>
+                    </Popover>
+                    <Button
+                      variant="primary"
+                      onClick={handleSubmit}
+                      disabled={!apiKey.match(/^SG\.[^.]+\.[^.]+$/)} 
+                    >
+                      Fetch data
+                    </Button>
+                    </SpaceBetween>
+                  </FormField>
+                  
+                
               }
             >
               Email Activity Viewer
