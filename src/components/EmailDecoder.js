@@ -25,6 +25,7 @@ import "ace-builds/src-noconflict/mode-text";
 import "ace-builds/src-noconflict/theme-dawn";
 
 import { simpleParser } from "mailparser";
+import MenuSideNavigation from "./MenuSideNavigation";
 
 export default function EmailDecoder () {
   const [toolsOpen, setToolsOpen] = useState(false);
@@ -210,11 +211,7 @@ export default function EmailDecoder () {
     <AppLayout
       toolsOpen={toolsOpen}
       onToolsChange={({ detail }) => setToolsOpen(detail.open)}
-      navigation={
-        <SideNavigation
-          activeHref={document.location.hash}
-          header={{ href: "/#/index", text: "Home" }}
-        />}
+      navigation={<MenuSideNavigation/>}
       tools={<Tools/>}
       content={
         <ContentLayout

@@ -1,5 +1,5 @@
 import  { useState, useContext, useEffect } from "react";
-import { useNavigate, useLocation, useLoaderData } from "react-router-dom";
+import { useLocation, useLoaderData } from "react-router-dom";
 import {
   AppLayout,
   Button,
@@ -12,7 +12,6 @@ import {
   Header,
   Input,
   Popover,
-  SideNavigation,
   SpaceBetween,
   StatusIndicator
 } from "@cloudscape-design/components";
@@ -39,7 +38,7 @@ export default function MailSendHelper () {
   const [response, setResponse] = useState();
   const [fetchFailed, setFetchFailed] = useState(false);
   const [errMsg, setErrMsg] = useState();
-  const [isValid, setIsValid] = useState(false);
+  const [isJsonValid, setIsJsonValid] = useState(false);
   const [preferences, setPreferences] = useState(undefined);
   const [editorHeight, setEditorHeight] = useState();
 
@@ -57,6 +56,7 @@ export default function MailSendHelper () {
         <Button
           variant="primary"
           onClick={handleSubmit}
+          disabled={!isJsonValid}
         >
           Submit
         </Button>
@@ -98,9 +98,9 @@ export default function MailSendHelper () {
       const parsed = JSON.parse(detail.value);
       const formatted = JSON.stringify(parsed, null, 4);
       setRequestJson(formatted);
-      setIsValid(true);
+      setIsJsonValid(true);
     } catch (e) {
-      setIsValid(false);
+      setIsJsonValid(false);
     }  
   };
 

@@ -1,12 +1,13 @@
-const now = Date.now();
-now.setMinutes(dt.getMinutes() + 5);
-const timeInSeconds = Math.floor( now.getTime() / 1000 );
+const now = new Date();
+const tenMinutesLater = new Date(now.getTime() + 10 * 60000);
+const timeInSeconds = Math.floor( tenMinutesLater.getTime() / 1000 );
 
 export const samples = 
   [
     {
       "name": "Simple text email",
       "id": "simple-plain",
+      "category": "Basic feature",
       "request": {
         "personalizations": [
           {
@@ -33,6 +34,7 @@ export const samples =
     {
       "name": "Simple multipart email",
       "id": "simple-multipart",
+      "category": "Basic feature",
       "request": {
         "personalizations": [
           {
@@ -63,6 +65,7 @@ export const samples =
     {
       "name": "Dynamic template",
       "id": "dynamic-template",
+      "category": "Basic feature",
       "request": {
         "personalizations": [
           {
@@ -89,13 +92,14 @@ export const samples =
     {
       "name": "Personalizations kitchen sink",
       "id": "personalizations-kitchen-sink",
+      "category": "Basic feature",
       "request":  {
         "personalizations": [
           {
             "to": [
               {
-                "email": "koken@kke.co.jp",
-                "name": "構研太郎"
+                "email": "koken+alice@kke.co.jp",
+                "name": "A. Koken"
               }
             ],
             "bcc": [
@@ -104,17 +108,19 @@ export const samples =
               }
             ],
             "substitutions": {
-              "%name%": "太郎"
+              "%name%": "Alice"
             },
             "custom_args": {"Key": "arg-A"},
             "send_at": timeInSeconds,
-            "headers": {"X-Hoge": "Huga"}
+            "from": {
+              "email": "support@example.com"
+            }
           },
           {
             "to": [
               {
-                "email": "kozo@kke.co.jp",
-                "name": "構造花子"
+                "email": "koken+bob@kke.co.jp",
+                "name": "B. Koken"
               }
             ],
             "cc": [
@@ -126,26 +132,26 @@ export const samples =
               }
             ],
             "substitutions": {
-              "%name%": "Hanako"
+              "%name%": "Bob"
             },
             "custom_args": {"Key": "arg-B"},
             "subject": "Hello, %name%!",
-            "send_at": timeInSeconds,
             "headers": {"X-Foo": "Bar"}
           }
         ],
         "subject": "こんにちは、%name%さん！",
+        "reply_to": "%name%@sink.sendgrid.net",
         "from": {
-          "email": "from@example.com"
+          "email": "noreply@example.com"
         },
         "content": [
           {
             "type": "text/plain",
-            "value": "テキストパートです！"
+            "value": "%name%さん、テキストパートです！"
           },
           {
             "type": "text/html",
-            "value": "<p>HTMLパートです！</p>"
+            "value": "<p>%name%さん、HTMLパートです！</p>"
           }
         ]
       }
@@ -153,6 +159,7 @@ export const samples =
     {
       "name": "Scheduled send",
       "id": "scheduled send",
+      "category": "Basic feature",
       "request": {
         "personalizations": [
           {
@@ -169,7 +176,7 @@ export const samples =
           "email": "from@example.com"
         },
         "batch_id": "YmRkNjMxMjYtODVhNy0xMWVkLTkzYjQtMWFhZjcyZjY3NzZjLThjNjMxMGI4OA",
-        "send_at": 1672119936,
+        "send_at": timeInSeconds,
         "content": [
           {
             "type": "text/plain",
@@ -183,8 +190,114 @@ export const samples =
       }
     },
     {
+      "name": "Category",
+      "id": "category",
+      "category": "Basic feature",
+      "request": {
+        "personalizations": [
+          {
+            "to": [
+              {
+                "email": "koken@kke.co.jp",
+                "name": "構研太郎"
+              }
+            ],
+            "subject": "こんにちは！"
+          }
+        ],
+        "from": {
+          "email": "from@example.com"
+        },
+        "categories": [
+          "notification",
+          "marketing"
+        ],
+        "content": [
+          {
+            "type": "text/plain",
+            "value": "テキストパートです！"
+          },
+          {
+            "type": "text/html",
+            "value": "<p>HTMLパートです！</p>"
+          }
+        ]
+      }
+    },    {
+      "name": "Click & open trackings",
+      "id": "trackings",
+      "category": "Trackings",
+      "request": {
+        "personalizations": [
+          {
+            "to": [
+              {
+                "email": "koken@kke.co.jp"
+              }
+            ]
+          }
+        ],
+        "subject": "Open & Click trackings",
+        "from": {"email": "from@example.com"},
+        "content": [
+          {
+            "type": "text/plain",
+            "value": "This link is click-tracked:\r\nhttps://sendgrid.kke.co.jp/"
+          },
+          {
+            "type": "text/html",
+            "value": "<p><a href=\"https://sendgrid.kke.co.jp/\">This link</a> is click-tracked.</p>"
+          }
+        ],
+        "tracking_settings": {
+          "click_tracking": {
+            "enable": true,
+            "enable_text": true
+          },
+          "open_tracking": {
+            "enable": true
+          }
+        }
+      }
+    },
+    {
+      "name": "Click tracking (text-part disabled)",
+      "id": "click-tracking-text-disabled",
+      "category": "Trackings",
+      "request": {
+        "personalizations": [
+          {
+            "to": [
+              {
+                "email": "koken@kke.co.jp"
+              }
+            ]
+          }
+        ],
+        "subject": "Click tracking (text-part disabled)",
+        "from": {"email": "from@example.com"},
+        "content": [
+          {
+            "type": "text/plain",
+            "value": "This link is NOT click-tracked:\r\nhttps://sendgrid.kke.co.jp/"
+          },
+          {
+            "type": "text/html",
+            "value": "<p><a href=\"https://sendgrid.kke.co.jp/\">This link</a> is click-tracked.</p>"
+          }
+        ],
+        "tracking_settings": {
+          "click_tracking": {
+            "enable": true,
+            "enable_text": false
+          }
+        }
+      }
+    },
+    {
       "name": "Click tracking (partially disabled)",
       "id": "click-tracking-partially-disabled",
+      "category": "Trackings",
       "request": {
         "personalizations": [
           {
@@ -211,8 +324,42 @@ export const samples =
       }
     },
     {
+      "name": "Open trackings with substitution tag",
+      "id": "open-tracking-with-tag",
+      "category": "Trackings",
+      "request": {
+        "personalizations": [
+          {
+            "to": [
+              {
+                "email": "koken@kke.co.jp"
+              }
+            ]
+          }
+        ],
+        "subject": "Open trackings with substitution tag",
+        "from": {"email": "from@example.com"},
+        "content": [
+          {
+            "type": "text/html",
+            "value": "%open-track%<p><a href=\"https://sendgrid.kke.co.jp/\">This link</a> is click-tracked.</p>"
+          }
+        ],
+        "tracking_settings": {
+          "click_tracking": {
+            "enable": true
+          },
+          "open_tracking": {
+            "enable": true,
+            "substitution_tag": "%open-track%"
+          }
+        }
+      }
+    },
+    {
       "name": "Global unsubscribe",
       "id": "global-unsub",
+      "category": "Unsubscribes",
       "request": {
         "personalizations" : [
           {
@@ -221,7 +368,7 @@ export const samples =
         ],
         "from": {"email": "from@example.com"},
         "subject": "Global Unsub",
-        "asm": {"group_id": 15441, "groups_to_display": [15440, 16582]},
+        "asm": {"group_id": 15441},
         "content": [
           {
             "type": "text/plain",
@@ -237,6 +384,7 @@ export const samples =
     {
       "name": "Group unsubscribe",
       "id": "group-unsub",
+      "category": "Unsubscribes",
       "request": {
         "personalizations": [{"to":[{"email":"koken@kke.co.jp"}]}],
         "from": {"email":"from@example.com"},
@@ -257,6 +405,7 @@ export const samples =
     {
       "name": "Group unsubscribe with subscription tracking",
       "id": "group-unsub-subscription-tracking",
+      "category": "Unsubscribes",
       "request": {
         "personalizations" : [
           {
@@ -282,6 +431,7 @@ export const samples =
     {
       "name": "Attach text",
       "id": "attach-text",
+      "category": "Advanced feature",
       "request": {
         "personalizations": [
           {
@@ -314,6 +464,7 @@ export const samples =
     {
       "name": "Attach PDF",
       "id": "attach-pdf",
+      "category": "Advanced feature",
       "request": {
         "personalizations": [
           {
@@ -346,6 +497,7 @@ export const samples =
     {
       "name": "Sandbox mode",
       "id": "sandbox",
+      "category": "Advanced feature",
       "request": {
         "personalizations": [
           {
@@ -378,6 +530,7 @@ export const samples =
     {
       "name": "Kitchen sink",
       "id": "kitchen-sink",
+      "category": "Advanced feature",
       "request": {
         "personalizations": [
           {
@@ -451,7 +604,7 @@ export const samples =
           "pie",
           "baking"
         ],
-        "send_at": 1617260400,
+        "send_at": timeInSeconds,
         "batch_id": "AsdFgHjklQweRTYuIopzXcVBNm0aSDfGHjklmZcVbNMqWert1znmOP2asDFjkl",
         "asm": {
           "group_id": 12345,

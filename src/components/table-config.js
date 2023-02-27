@@ -57,13 +57,13 @@ export const COLUMN_DIFINITIONS = [
   {
     id: "category",
     header: "Category",
-    cell: e => e.category,
+    cell: e => JSON.stringify(e.category),
     sortingField: "category"
   },
   {
     id: "unique_arguments",
     header: "Unique arguments",
-    cell: e => e.unique_arguments,
+    cell: e => JSON.stringify(e.unique_arguments),
     sortingField: "unique_arguments"
   },
   {
