@@ -73,3 +73,5 @@ export const menuNavArray = menuItems.reduce((acc, curr) => {
   }
   return acc;
 }, []);
+
+menuNavArray.push({ type: "divider" });

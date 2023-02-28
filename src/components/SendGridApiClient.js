@@ -259,7 +259,12 @@ export default function SendGridApiClient() {
   }
 
   const copyToClipboard = async (text) => {
-    await global.navigator.clipboard.writeText(text);
+    try {
+      const json = JSON.parse(text);
+      await global.navigator.clipboard.writeText(JSON.stringify(json, null, 4));
+    } catch (e) {
+      await global.navigator.clipboard.writeText(text);
+    }
   };
 
   const FetchFailFlash = (
@@ -290,7 +295,7 @@ export default function SendGridApiClient() {
       {response && 
         <ResponseContainer 
           response={response}
-          onCopy={() => copyToClipboard(response.body)}
+          onCopy={() => copyToClipboard(response.body, null, 4)}
         />
       }
       {fetchFailed && FetchFailFlash} 
