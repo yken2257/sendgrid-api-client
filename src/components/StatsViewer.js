@@ -20,6 +20,7 @@ import {
   StatusIndicator
 } from "@cloudscape-design/components";
 import { ApiKeyContext } from "./ApiKeyProvider";
+import MenuSideNavigation from "./MenuSideNavigation";
 
 export default function StatsViewer () {
   const { apiKey, setApiKey } = useContext(ApiKeyContext);
@@ -228,17 +229,30 @@ export default function StatsViewer () {
   return (
     <AppLayout
     toolsHide={true}
-    navigation={
-      <SideNavigation
-        activeHref={document.location.hash}
-        header={{ href: "/#/index", text: "Home" }}
-      />}
+    navigation={<MenuSideNavigation/>}
     content={
       <ContentLayout
         header={
           <Header
             variant="h1"
             description="Global Statsのグラフ描画ツール"
+            actions={
+              <FormField
+                label="API Key"
+                errorText={apiKey.match(/^SG\.[^.]+\.[^.]+$/)? "" : "Set API key in menu bar."}
+              >
+                <Popover
+                  dismissButton={false}
+                  size="small"
+                  triggerType="custom"
+                  content={
+                    <StatusIndicator type="info">Set in menu bar</StatusIndicator>
+                  }
+                >
+                  <Input value={apiKey} disabled/>
+                </Popover>
+              </FormField>
+            }
           >
             Stats Viewer
           </Header>
@@ -258,43 +272,20 @@ export default function StatsViewer () {
               }
               // header={<Header variant="h2">Fetch data</Header>}
             >
-              <SpaceBetween size="xs">
-                <FormField
-                  // description="This is a description."
-                  label="API Key"
-                >
-                  <SpaceBetween size="xxs" direction="horizontal">
-                    <Popover
-                      dismissButton={false}
-                      position="right"
-                      size="small"
-                      triggerType="custom"
-                      content={
-                        <StatusIndicator type="info">Set your API key from menu bar</StatusIndicator>
-                      }
-                    >
-                      <Input
-                        value={apiKey}
-                        disabled
-                      />
-                    </Popover>
-                  </SpaceBetween>
-                </FormField>
-                <FormField label="Date range">
-                  <Grid gridDefinition={[{ colspan: 0 }, { colspan: 7 }]}>
-                    <Select
-                      selectedOption={aggregation}
-                      onChange={event => setAggrigation(event.detail.selectedOption)}
-                      options={[
-                        { label: "Aggregated by day", value: "day" },
-                        { label: "Aggregated by week", value: "week" },
-                        { label: "Aggregated by month", value: "month" }
-                      ]}
-                    />
-                    {customDataRangePicker}
-                  </Grid>
-                </FormField>
-              </SpaceBetween>              
+              <FormField label="Date range">
+                <Grid gridDefinition={[{ colspan: 0 }, { colspan: 7 }]}>
+                  <Select
+                    selectedOption={aggregation}
+                    onChange={event => setAggrigation(event.detail.selectedOption)}
+                    options={[
+                      { label: "Aggregated by day", value: "day" },
+                      { label: "Aggregated by week", value: "week" },
+                      { label: "Aggregated by month", value: "month" }
+                    ]}
+                  />
+                  {customDataRangePicker}
+                </Grid>
+              </FormField>
             </Form>
           </Container>
           {fetchFailed && failFlash } 

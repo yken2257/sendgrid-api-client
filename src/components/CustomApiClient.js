@@ -15,7 +15,7 @@ import DebugContainer from "./DebugContainer";
 import RequestForm from "./RequestForm";
 import CustomRequestForm from "./CustomRequestForm";
 import Navigation from "./ApiSideNavigation";
-import { apiDetailArray, apiSearchItemsArray } from "../parseOpenApi"
+import { apiDetailArray, apiSearchItemsArray } from "../generate-metadata"
 
 export default function CustomApiClient() {
   const navigate = useNavigate();

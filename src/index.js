@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { createHashRouter, RouterProvider, Navigate } from "react-router-dom";
 import "@cloudscape-design/global-styles/index.css";
 import { ApiKeyProvider } from "./components/ApiKeyProvider";
-import { apiDetailArray } from "./parseOpenApi"
+import { apiDetailArray, mailSendSampleArray } from "./generate-metadata"
 import SendGridApiClient from './components/SendGridApiClient';
 import CustomApiClient from './components/CustomApiClient';
 import Home from "./components/Home";
@@ -13,7 +13,7 @@ import JsonFormatter from "./components/JsonFomatter";
 import StatsViewer from "./components/StatsViewer";
 import ActivityViewer from "./components/ActivityViewer";
 import EmailDecoder from "./components/EmailDecoder";
-
+import MailSendHelper from "./components/MailSendHelper";
 
 const apiDetailLoader = async ({ params }) => {
   const api = apiDetailArray.find((api) => api.docPath === params.docPath);
@@ -21,6 +21,14 @@ const apiDetailLoader = async ({ params }) => {
     throw new Response("Not found", { status: 404 });
   }
   return api;
+};
+
+const mailSendSampleLoader = async ({ params }) => {
+  const sample = mailSendSampleArray.find((sample) => sample.id === params.id);
+  if (!sample) {
+    throw new Response("Not found", { status: 404 });
+  }
+  return sample;
 };
 
 const router = createHashRouter([
@@ -61,6 +69,15 @@ const router = createHashRouter([
       {
         path: "/email-decode",
         element: <EmailDecoder/>,
+      },
+      {
+        path: "/mailsend/",
+        element: <Navigate to="/mailsend/simple-plain"/>
+      },
+      {
+        path: "/mailsend/:id",
+        element: <MailSendHelper/>,
+        loader: mailSendSampleLoader,
       },
     ]
   },
