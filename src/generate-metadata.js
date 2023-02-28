@@ -35,6 +35,8 @@ export const mailSendNavArray = mailSendNavBaseArray.reduce((acc, curr) => {
   return acc;
 }, []);
 
+mailSendNavArray.push({ type: "divider" });
+
 export const mailSendSampleArray = samples;
 
 const parsed = await SwaggerParser.validate(sendgrid, {
