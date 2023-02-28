@@ -264,7 +264,12 @@ export default function CustomApiClient() {
   }
 
   const copyToClipboard = async (text) => {
-    await global.navigator.clipboard.writeText(text);
+    try {
+      const json = JSON.parse(text);
+      await global.navigator.clipboard.writeText(JSON.stringify(json, null, 4));
+    } catch (e) {
+      await global.navigator.clipboard.writeText(text);
+    }
   };
 
   const NotFound = (

@@ -295,7 +295,7 @@ export default function SendGridApiClient() {
       {response && 
         <ResponseContainer 
           response={response}
-          onCopy={() => copyToClipboard(response.body, null, 4)}
+          onCopy={() => copyToClipboard(response.body)}
         />
       }
       {fetchFailed && FetchFailFlash} 
