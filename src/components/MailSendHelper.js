@@ -42,7 +42,7 @@ export default function MailSendHelper () {
   const [response, setResponse] = useState();
   const [fetchFailed, setFetchFailed] = useState(false);
   const [errMsg, setErrMsg] = useState();
-  const [isJsonValid, setIsJsonValid] = useState(false);
+  const [isJsonValid, setIsJsonValid] = useState(true);
   const [preferences, setPreferences] = useState(undefined);
   const [editorHeight, setEditorHeight] = useState();
   const [curl, setCurl] = useState("");
