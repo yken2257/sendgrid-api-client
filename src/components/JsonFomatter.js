@@ -78,13 +78,12 @@ export default function JsonFormatter () {
                   size="small"
                   position="top"
                   triggerType="custom"
-                  dismissButton={false}
+                  dismissButton={true}
                   content={<StatusIndicator type="success">Copied!</StatusIndicator>}
                   >
                     <Button
                       iconAlign="left"
                       iconName="copy"
-                      variant="primary"
                       onClick={() => copyToClipboard(json)}
                     >
                       Copy

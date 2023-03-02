@@ -41,6 +41,8 @@ export default function ResponseContainer(props) {
               {props.response.status} {props.response.statusText}
             </Header>
           }
+          dismissible
+          onDismiss={props.handleResponseDismiss}
         ></Alert>
         <Grid
           gridDefinition={[
@@ -57,7 +59,7 @@ export default function ResponseContainer(props) {
                     size="small"
                     position="top"
                     triggerType="custom"
-                    dismissButton={false}
+                    dismissButton={true}
                     content={<StatusIndicator type="success">Copied!</StatusIndicator>}
                   >
                     <Button
@@ -65,7 +67,7 @@ export default function ResponseContainer(props) {
                       iconName="copy"
                       onClick={props.onCopy}
                     >
-                      Copy code
+                      Copy body
                     </Button>
                   </Popover>
                 }

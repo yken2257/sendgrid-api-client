@@ -16,6 +16,10 @@ import {
   StatusIndicator
 } from "@cloudscape-design/components";
 
+import { Amplify, API } from "aws-amplify";
+import awsconfig from "../aws-exports";
+Amplify.configure(awsconfig);
+
 import ResponseContainer from "./ResponseContainer";
 import MailSendSideNavigation from "./MailSendSideNavigation";
 import { ApiKeyContext } from "./ApiKeyProvider";
@@ -38,13 +42,23 @@ export default function MailSendHelper () {
   const [response, setResponse] = useState();
   const [fetchFailed, setFetchFailed] = useState(false);
   const [errMsg, setErrMsg] = useState();
-  const [isJsonValid, setIsJsonValid] = useState(false);
+  const [isJsonValid, setIsJsonValid] = useState(true);
   const [preferences, setPreferences] = useState(undefined);
   const [editorHeight, setEditorHeight] = useState();
+  const [curl, setCurl] = useState("");
 
   useEffect(() => {
     setRequestJson(JSON.stringify(sample.request, null, 4))
+    setResponse();
   }, [location.pathname]);
+
+  useEffect(() => {
+    let curlStr = `curl -i --request POST \\\n--url https://api.sendgrid.com/v3/mail/send \\\n`;
+    curlStr += `--header "Authorization: Bearer ${apiKey}" \\\n`
+    curlStr += `--header "Content-Type: application/json" \\\n`
+    curlStr += `--data '${requestJson}'` 
+    setCurl(curlStr);
+  }, [requestJson]);
 
   const copyToClipboard = async (text) => {
     await global.navigator.clipboard.writeText(text);
@@ -106,7 +120,6 @@ export default function MailSendHelper () {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const err = new Error();
     try {
       const headers = {
         "Authorization": `Bearer ${apiKey}`,
@@ -121,17 +134,19 @@ export default function MailSendHelper () {
           body: requestJson  
         }
       };
-      const res = await fetch(process.env.FETCH_URL, {
-        method: "POST",
-        body: JSON.stringify(body)
-      });
-      const apiResponse = await res.json();
-      const ok = apiResponse.ok;
-      const status = apiResponse.status;
-      const statusText = apiResponse.statusText;
-      const responseHeaders = apiResponse.headers;
-      const contentType = apiResponse.contentType;
-      const responseBody = apiResponse.body;
+      const apiName = 'httpClient';
+      const path = '/apicall';
+      const myInit = {
+        body: body,
+        headers: {}
+      };
+      const res = await API.post(apiName, path, myInit);
+      const ok = res.ok;
+      const status = res.status;
+      const statusText = res.statusText;
+      const responseHeaders = res.headers;
+      const contentType = res.contentType;
+      const responseBody = res.body;
       setResponse({
         ok: ok,
         status: status,
@@ -190,20 +205,37 @@ export default function MailSendHelper () {
           >
             <Form
               actions={
-                <SpaceBetween direction="horizontal" size="l">
+                <SpaceBetween direction="horizontal" size="xs">
                   <Popover
                     size="small"
                     position="top"
                     triggerType="custom"
-                    dismissButton={false}
+                    dismissButton={true}
                     content={<StatusIndicator type="success">Copied!</StatusIndicator>}
                   >
                     <Button
                       iconAlign="left"
                       iconName="copy"
+                      disabled={!isJsonValid}
                       onClick={() => copyToClipboard(requestJson)}
                     >
-                      Copy
+                      Copy JSON
+                    </Button>
+                  </Popover>
+                  <Popover
+                    size="small"
+                    position="top"
+                    triggerType="custom"
+                    dismissButton={true}
+                    content={<StatusIndicator type="success">Copied!</StatusIndicator>}
+                  >
+                    <Button
+                      iconAlign="left"
+                      iconName="copy"
+                      disabled={!isJsonValid}
+                      onClick={() => copyToClipboard(curl)}
+                    >
+                      Copy request as cURL
                     </Button>
                   </Popover>
                   <ApiSubmitButton/>
@@ -244,6 +276,7 @@ export default function MailSendHelper () {
             <ResponseContainer 
               response={response}
               onCopy={() => copyToClipboard(response.body)}
+              handleResponseDismiss={() => setResponse()}
             />
           }
           {fetchFailed && <FailFlash/> }
