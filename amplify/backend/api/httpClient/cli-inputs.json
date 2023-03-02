@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "paths": {
+    "/apicall": {
+      "name": "/apicall",
+      "lambdaFunction": "SupportHelperHttpClient",
+      "permissions": {
+        "setting": "open"
+      }
+    }
+  }
+}

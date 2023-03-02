@@ -41,6 +41,8 @@ export default function ResponseContainer(props) {
               {props.response.status} {props.response.statusText}
             </Header>
           }
+          dismissible
+          onDismiss={props.handleResponseDismiss}
         ></Alert>
         <Grid
           gridDefinition={[

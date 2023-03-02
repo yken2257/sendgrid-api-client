@@ -1,5 +1,44 @@
 {
-  "api": {},
+  "api": {
+    "httpClient": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "SupportHelperHttpClient"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    }
+  },
   "auth": {},
-  "function": {}
+  "function": {
+    "SupportHelperHttpClient": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_SupportHelperHttpClient_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "SupportHelperHttpClient"
+        }
+      ]
+    },
+    "AMPLIFY_function_SupportHelperHttpClient_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "SupportHelperHttpClient"
+        }
+      ]
+    }
+  }
 }
