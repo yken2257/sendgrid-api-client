@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useLocation, useLoaderData } from "react-router-dom";
 
+import { Amplify, API } from "aws-amplify";
+import awsconfig from "../aws-exports";
+Amplify.configure(awsconfig);
+
 import {
   AppLayout,
   Autosuggest,
@@ -220,7 +224,6 @@ export default function SendGridApiClient() {
         }
         return obj;
       }, {});
-
       const body = {
         resource: request.urlEncoded,
         options: {
@@ -229,17 +232,19 @@ export default function SendGridApiClient() {
           body: request.body === null ? null : JSON.stringify(request.body)  
         }
       };
-      const res = await fetch(process.env.FETCH_URL, {
-        method: "POST",
-        body: JSON.stringify(body)
-      });
-      const apiResponse = await res.json();
-      const ok = apiResponse.ok;
-      const status = apiResponse.status;
-      const statusText = apiResponse.statusText;
-      const responseHeaders = apiResponse.headers;
-      const contentType = apiResponse.contentType;
-      const responseBody = apiResponse.body;
+      const apiName = 'httpClient';
+      const path = '/apicall';
+      const myInit = {
+        body: body,
+        headers: {}
+      };
+      const res = await API.post(apiName, path, myInit);
+      const ok = res.ok;
+      const status = res.status;
+      const statusText = res.statusText;
+      const responseHeaders = res.headers;
+      const contentType = res.contentType;
+      const responseBody = res.body;
       setResponse({
         ok: ok,
         status: status,
@@ -296,6 +301,7 @@ export default function SendGridApiClient() {
         <ResponseContainer 
           response={response}
           onCopy={() => copyToClipboard(response.body)}
+          handleResponseDismiss={() => setResponse()}
         />
       }
       {fetchFailed && FetchFailFlash} 

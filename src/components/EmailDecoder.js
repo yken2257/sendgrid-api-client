@@ -324,7 +324,7 @@ export default function EmailDecoder () {
                       </Link>
                     }  
                   >
-                    Content
+                    Body
                   </Header>
                   }
               >
