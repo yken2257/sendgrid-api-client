@@ -322,7 +322,7 @@ export default function RequestForm(props) {
                   size="small"
                   position="top"
                   triggerType="custom"
-                  dismissButton={false}
+                  dismissButton={true}
                   content={<StatusIndicator type="success">Copied!</StatusIndicator>}
                 >
                   <Button
@@ -331,7 +331,7 @@ export default function RequestForm(props) {
                     disabled={!canSubmit}
                     onClick={props.onCopy}
                   >
-                    Copy code
+                    Copy cURL
                   </Button>
                 </Popover>
               }
