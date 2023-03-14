@@ -40,6 +40,7 @@ export default function MailSendHelper () {
   const { apiKey, setApiKey } = useContext(ApiKeyContext);
   const [requestJson, setRequestJson] = useState(JSON.stringify(sample.request, null, 4));
   const [response, setResponse] = useState();
+  const [isLoading, setIsLoading] = useState(false);
   const [fetchFailed, setFetchFailed] = useState(false);
   const [errMsg, setErrMsg] = useState();
   const [isJsonValid, setIsJsonValid] = useState(true);
@@ -71,6 +72,7 @@ export default function MailSendHelper () {
           variant="primary"
           onClick={handleSubmit}
           disabled={!isJsonValid}
+          loading={isLoading}
         >
           Submit
         </Button>
@@ -120,6 +122,7 @@ export default function MailSendHelper () {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
     try {
       const headers = {
         "Authorization": `Bearer ${apiKey}`,
@@ -159,6 +162,7 @@ export default function MailSendHelper () {
       setFetchFailed(true);
       setErrMsg(error.message);
     }
+    setIsLoading(false);
   };
 
   return (

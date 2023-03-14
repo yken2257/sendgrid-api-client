@@ -28,6 +28,7 @@ export default function StatsViewer () {
   const [dateInput, setDateInput] = useState(undefined);
   const [startDate, setStartDate] = useState(undefined);
   const [endDate, setEndDate] = useState(undefined);
+  const [isLoading, setIsLoading] = useState(false);
   const [fetchFailed, setFetchFailed] = useState(false);
   const [errMsg, setErrMsg] = useState();
   const METRICS = ["requests", "deferred", "delivered", "blocks", "bounces", "invalid_emails", "opens", "clicks", "unique_opens", "unique_clicks", "unsubscribes", "spam_reports", "bounce_drops", "unsubscribe_drops", "spam_report_drops"];
@@ -65,6 +66,7 @@ export default function StatsViewer () {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
     const err = new Error();
     try {
       const headers = {
@@ -111,6 +113,7 @@ export default function StatsViewer () {
       setFetchFailed(true);
       setErrMsg(error.message);
     }
+    setIsLoading(false);
   };
 
   const handleFilterChange = (event) => {
@@ -266,6 +269,7 @@ export default function StatsViewer () {
                   variant="primary"
                   onClick={handleSubmit}
                   disabled={!apiKey.match(/^SG\.[^.]+\.[^.]+$/) || !startDate}
+                  loading={isLoading}
                 >
                   Fetch & Draw
                 </Button>
