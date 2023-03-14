@@ -1,6 +1,19 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useLocation, useLoaderData } from "react-router-dom";
 
+import ace from "ace-builds/src-noconflict/ace";
+import 'ace-builds/webpack-resolver'
+import "ace-builds/src-noconflict/theme-dawn";
+import "ace-builds/src-noconflict/theme-tomorrow_night_bright";
+import "ace-builds/src-noconflict/mode-json";
+import "ace-builds/src-noconflict/worker-json";
+import "ace-builds/css/ace.css";
+import "ace-builds/css/theme/dawn.css";
+import "ace-builds/css/theme/tomorrow_night_bright.css";
+
+ace.config.set("useStrictCSP", true);
+ace.config.set("loadWorkerFromBlob", false);
+
 import { Amplify, API } from "aws-amplify";
 import awsconfig from "../aws-exports";
 Amplify.configure(awsconfig);
@@ -8,10 +21,16 @@ Amplify.configure(awsconfig);
 import {
   AppLayout,
   Autosuggest,
+  Badge,
+  CodeEditor,
+  Container,
   ContentLayout,
   Flashbar,
+  Grid,
   Header,
+  Input,
   SpaceBetween,
+  Tabs,
 } from "@cloudscape-design/components";
 
 import ResponseContainer from "./ResponseContainer";
@@ -30,6 +49,7 @@ export default function SendGridApiClient() {
   const location = useLocation();
   const [searchText, setSearchText] = useState("");
   const [viewApIkeyModal, setViewApIkeyModal] = useState(false);
+  const [preferences, setPreferences] = React.useState(undefined);
   const [request, setRequest] = useState({
     urlInput: "",
     urlEncoded: "",
@@ -48,7 +68,23 @@ export default function SendGridApiClient() {
   });
   const [response, setResponse] = useState();
   const [fetchFailed, setFetchFailed] = useState();
+  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("header");
+
+  let badgeColor = null;
+  switch (request.method.value) {
+    case 'GET':
+      badgeColor = {'color': 'green'};
+      break;
+    case 'POST':
+      badgeColor = {'color': 'blue'};
+      break;
+    case 'DELETE':
+      badgeColor = {'color': 'red'}
+      break;
+    default:
+      badgeColor = {};
+  }
   
   useEffect(() => {
     let body = {};
@@ -217,6 +253,7 @@ export default function SendGridApiClient() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
     try {
       const headerObject = request.headers.reduce((obj, item) => {
         if (item.included) {
@@ -257,6 +294,7 @@ export default function SendGridApiClient() {
       setResponse(null);
       setFetchFailed(error.message);
     }
+    setIsLoading(false);
   };
 
   const handleViewApiKeyMordal = () => {
@@ -285,62 +323,141 @@ export default function SendGridApiClient() {
     />
   );
 
-  const apiContent = (
-    <SpaceBetween size="l">
-      <RequestForm
-        api={api}
-        request={request}
-        activeTab={activeTab}
-        onSetActiveTab={(value) => setActiveTab(value)}
-        onRequestChange={handleRequestChange}
-        onBodyChange={handleBodyChange}
-        onSubmitRequest={handleSubmit}
-        onCopy={() => copyToClipboard(request.curl)}
-      />
-      {response && 
-        <ResponseContainer 
-          response={response}
-          onCopy={() => copyToClipboard(response.body)}
-          handleResponseDismiss={() => setResponse()}
+  const ApiHeader = () => {
+    return (
+      <Container
+        header={
+            <Header
+              variant="h2"
+              description={api.description}
+            >
+              {api.summary}
+            </Header>
+        }
+      >
+        <Grid gridDefinition={[{ colspan: 0 }, { colspan: 9 }]}>
+          <div style={{position: "relative", top: 6}}>
+            <Badge {...badgeColor}>
+              <div style={{fontSize: 18}}>
+                {request.method.value}
+              </div>
+            </Badge>
+          </div>
+          <Input
+            type="url"
+            value={request.urlInput}
+            readOnly
+          />
+        </Grid>
+      </Container>
+    );
+  }
+
+  const apiTryItOut = (
+    <SpaceBetween size="xs">
+      <ApiHeader/>
+      <SpaceBetween size="l">
+        <RequestForm
+          api={api}
+          request={request}
+          activeTab={activeTab}
+          isLoading={isLoading}
+          onSetActiveTab={(value) => setActiveTab(value)}
+          onRequestChange={handleRequestChange}
+          onBodyChange={handleBodyChange}
+          onSubmitRequest={handleSubmit}
+          onCopy={() => copyToClipboard(request.curl)}
         />
-      }
-      {fetchFailed && FetchFailFlash} 
-      {process.env.ENV === "DEV" && <DebugContainer request={request} api={api}/>}
+        {response && 
+          <ResponseContainer 
+            response={response}
+            onCopy={() => copyToClipboard(response.body)}
+            handleResponseDismiss={() => setResponse()}
+          />
+        }
+        {fetchFailed && FetchFailFlash} 
+        {process.env.ENV === "DEV" && <DebugContainer request={request} api={api}/>}
+      </SpaceBetween>
+    </SpaceBetween>
+  );
+
+  const apiSpecification = (
+    <SpaceBetween size="s">
+      <ApiHeader/>
+      <CodeEditor
+        ace={ace}
+        language="json"
+        value={JSON.stringify(api, null, 4)}
+        themes={{ light: ["dawn"], dark: ["tomorrow_night_bright"] }}
+        editorContentHeight={2000}
+        // onEditorContentResize={({detail}) => setEditorHeight(detail.height)}
+        preferences={preferences}
+        onPreferencesChange={(e) => setPreferences(e.detail)}
+        // onDelayedChange={props.onBodyChange}
+        i18nStrings={{
+          editorGroupAriaLabel: "Code editor",
+          statusBarGroupAriaLabel: "Status bar",
+          cursorPosition: (row, column) => `Ln ${row}, Col ${column}`,
+          errorsTab: "Errors",
+          warningsTab: "Warnings",
+          preferencesButtonAriaLabel: "Preferences",
+          paneCloseButtonAriaLabel: "Close",
+          preferencesModalHeader: "Preferences",
+          preferencesModalCancel: "Cancel",
+          preferencesModalConfirm: "Confirm",
+          preferencesModalWrapLines: "Wrap lines",
+          preferencesModalTheme: "Theme",
+          preferencesModalLightThemes: "Light themes",
+          preferencesModalDarkThemes: "Dark themes"
+        }}
+      />
     </SpaceBetween>
   );
 
   return (
-    <>
-      <AppLayout
-        toolsHide={true}
-        navigation={<ApiSideNavigation onViewApiKeyMordal={handleViewApiKeyMordal} />}
-        content={
-          <ContentLayout
-            header={
-              <SpaceBetween size="xs">
-                <Header
-                  variant="h1"
-                  description="SendGrid Web APIのエンドポイントの検索とリクエストツール"
-                >
-                  SendGrid API Client
-                </Header>
-                <Autosuggest
-                  onChange={({ detail }) => setSearchText(detail.value)}
-                  onSelect={handleSelect}
-                  value={searchText}
-                  options={apiSearchItemsArray}
-                  enteredTextLabel={(value) => `Use: "${value}"`}
-                  ariaLabel="Autosuggest example with features"
-                  placeholder="Search API by title, url, category, description"
-                  empty="No matches found"
-                />
-              </SpaceBetween>
-            }
-          >
-            {apiContent}
-          </ContentLayout>
-        }
-      />
-    </>
+    <AppLayout
+      toolsHide={true}
+      navigation={<ApiSideNavigation onViewApiKeyMordal={handleViewApiKeyMordal} />}
+      content={
+        <ContentLayout
+          disableOverlap
+          header={
+            <SpaceBetween size="xs">
+              <Header
+                variant="h1"
+                description="SendGrid Web APIのエンドポイントの検索とリクエストツール"
+              >
+                SendGrid API Client
+              </Header>
+              <Autosuggest
+                onChange={({ detail }) => setSearchText(detail.value)}
+                onSelect={handleSelect}
+                value={searchText}
+                options={apiSearchItemsArray}
+                enteredTextLabel={(value) => `Use: "${value}"`}
+                ariaLabel="Autosuggest example with features"
+                placeholder="Search API by title, url, category, description"
+                empty="No matches found"
+              />
+            </SpaceBetween>
+          }
+        >
+          <Tabs
+            tabs={[
+              {
+                label: "Try it out",
+                id: "try-it-out",
+                content: apiTryItOut
+              },
+              {
+                label: "Open API Specification",
+                id: "open-api-sec",
+                content: apiSpecification
+              }
+            ]}
+          />
+        </ContentLayout>
+      }
+    />
   );
 }

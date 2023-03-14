@@ -149,6 +149,7 @@ export default function RequestForm(props) {
           type="submit"
           variant="primary"
           disabled={!canSubmit}
+          loading={props.isLoading}
         >
           Submit
         </Button>
