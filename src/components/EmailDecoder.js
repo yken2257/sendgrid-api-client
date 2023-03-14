@@ -32,6 +32,7 @@ export default function EmailDecoder () {
   const [input, setInput] = useState(undefined);
   const [parsedHeader, setParsedHeader] = useState([]);
   const [parsedContent, setParsedContent] = useState(undefined);
+  const [isLoading, setIsLoading] = useState(false);
   const [fetchFailed, setFetchFailed] = useState(false);
   const [errMsg, setErrMsg] = useState();
 
@@ -92,6 +93,7 @@ export default function EmailDecoder () {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
     const err = new Error();
     try {
       parseData();
@@ -99,6 +101,7 @@ export default function EmailDecoder () {
       setFetchFailed(true);
       setErrMsg(error.message);
     }
+    setIsLoading(false);
   };
 
   const failFlash = (
@@ -255,6 +258,7 @@ export default function EmailDecoder () {
                       variant="primary"
                       onClick={handleSubmit}
                       disabled={!input}
+                      loading={isLoading}
                     >
                       Analyze
                     </Button>

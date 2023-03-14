@@ -110,11 +110,13 @@ export default function ActivityViewer () {
   const { apiKey, setApiKey } = useContext(ApiKeyContext);
   const [preferences, setPreferences] = useState(DEFAULT_PREFERENCES);
   const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [fetchFailed, setFetchFailed] = useState(false);
   const [errMsg, setErrMsg] = useState();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
     const err = new Error();
     try {
       const headers = {
@@ -148,6 +150,7 @@ export default function ActivityViewer () {
       setFetchFailed(true);
       setErrMsg(error.message);
     }
+    setIsLoading(false);
   };
 
   const { items, actions, filteredItemsCount, collectionProps, paginationProps, propertyFilterProps } = useCollection(
@@ -227,6 +230,7 @@ export default function ActivityViewer () {
                       variant="primary"
                       onClick={handleSubmit}
                       disabled={!apiKey.match(/^SG\.[^.]+\.[^.]+$/)} 
+                      loading={isLoading}
                     >
                       Fetch data
                     </Button>

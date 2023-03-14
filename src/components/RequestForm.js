@@ -12,7 +12,6 @@ import "ace-builds/css/ace.css";
 import "ace-builds/css/theme/dawn.css";
 import "ace-builds/css/theme/tomorrow_night_bright.css";
 import {
-  Badge,
   Box,
   Button,
   Checkbox,
@@ -37,21 +36,6 @@ export default function RequestForm(props) {
   const [activeTab, setActiveTab] = React.useState("header");
   const [preferences, setPreferences] = React.useState(undefined);
   const [editorHeight, setEditorHeight] = React.useState();
-
-  let badgeColor = null;
-  switch (props.request.method.value) {
-    case 'GET':
-      badgeColor = {'color': 'green'};
-      break;
-    case 'POST':
-      badgeColor = {'color': 'blue'};
-      break;
-    case 'DELETE':
-      badgeColor = {'color': 'red'}
-      break;
-    default:
-      badgeColor = {};
-  }
 
   useEffect(()=> {
     setActiveTab("header");
@@ -177,6 +161,7 @@ export default function RequestForm(props) {
           type="submit"
           variant="primary"
           disabled={!canSubmit}
+          loading={props.isLoading}
         >
           Submit
         </Button>
@@ -274,86 +259,58 @@ export default function RequestForm(props) {
   }
 
   return (
-    <SpaceBetween size="xs">
+    <Grid
+      gridDefinition={[
+        { colspan: { default: 12, xxs: 6 } },
+        { colspan: { default: 12, xxs: 6 } }
+      ]}
+    >
+      <Tabs
+        variant="container"
+        tabs={paramTabs}
+        activeTabId={activeTab}
+        onChange={({detail}) => setActiveTab(detail.activeTabId)}
+      />
       <Container
         header={
-            <Header
-              variant="h2"
-              description={api.description}
-            >
-              {api.summary}
-            </Header>
+          <Header
+            variant="h3"
+            actions={
+              <Popover
+                size="small"
+                position="top"
+                triggerType="custom"
+                dismissButton={true}
+                content={<StatusIndicator type="success">Copied!</StatusIndicator>}
+              >
+                <Button
+                  iconAlign="left"
+                  iconName="copy"
+                  disabled={!canSubmit}
+                  onClick={props.onCopy}
+                >
+                  Copy cURL
+                </Button>
+              </Popover>
+            }
+          >
+            cURL example
+          </Header>
         }
       >
-        <Grid gridDefinition={[{ colspan: 0 }, { colspan: 9 }]}>
-          <div style={{position: "relative", top: 6}}>
-            <Badge {...badgeColor}>
-              <div style={{fontSize: 18}}>
-                {props.request.method.value}
-              </div>
-            </Badge>
-          </div>
-          <Input
-            type="url"
-            placeholder="https://"
-            value={props.request.urlInput}
-            readOnly
-          />
-        </Grid>
-      </Container>
-      <Grid
-        gridDefinition={[
-          { colspan: { default: 12, xxs: 6 } },
-          { colspan: { default: 12, xxs: 6 } }
-        ]}
-      >
-        <Tabs
-          variant="container"
-          tabs={paramTabs}
-          activeTabId={activeTab}
-          onChange={({detail}) => setActiveTab(detail.activeTabId)}
+        <AceEditor
+          mode="sh"
+          theme="textmate"
+          value={props.request.curl}
+          width={null}
+          maxLines={10}
+          showGutter={false}
+          highlightActiveLine={false}
+          readOnly={true}
+          showPrintMargin={false}
+          enableBasicAutocompletion={false}
         />
-        <Container
-          header={
-            <Header
-              variant="h3"
-              actions={
-                <Popover
-                  size="small"
-                  position="top"
-                  triggerType="custom"
-                  dismissButton={true}
-                  content={<StatusIndicator type="success">Copied!</StatusIndicator>}
-                >
-                  <Button
-                    iconAlign="left"
-                    iconName="copy"
-                    disabled={!canSubmit}
-                    onClick={props.onCopy}
-                  >
-                    Copy cURL
-                  </Button>
-                </Popover>
-              }
-            >
-              cURL example
-            </Header>
-          }
-        >
-          <AceEditor
-            mode="sh"
-            theme="textmate"
-            value={props.request.curl}
-            width={null}
-            maxLines={10}
-            showGutter={false}
-            highlightActiveLine={false}
-            readOnly={true}
-            showPrintMargin={false}
-            enableBasicAutocompletion={false}
-          />
-        </Container>
+      </Container>
     </Grid>
-    </SpaceBetween>
   );
 }

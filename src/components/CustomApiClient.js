@@ -45,6 +45,7 @@ export default function CustomApiClient() {
     isBodyValid: true
   });
   const [response, setResponse] = useState();
+  const [isLoading, setIsLoading] = useState(false);
   const [fetchFailed, setFetchFailed] = useState();
   
   useEffect(() => {
@@ -207,6 +208,7 @@ export default function CustomApiClient() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
     try {
       const headerObject = request.headers.reduce((obj, item) => {
         if (item.included) {
@@ -247,6 +249,7 @@ export default function CustomApiClient() {
       setResponse(null);
       setFetchFailed(error.message);
     }
+    setIsLoading(false);
   };
 
   const handleViewApiKeyMordal = () => {
@@ -311,6 +314,7 @@ export default function CustomApiClient() {
           <RequestForm
             api={api}
             request={request}
+            isLoading={isLoading}
             onRequestChange={handleRequestChange}
             onBodyChange={handleBodyChange}
             onSubmitRequest={handleSubmit}
@@ -333,6 +337,7 @@ export default function CustomApiClient() {
     <SpaceBetween size="l">
       <CustomRequestForm
         request={request}
+        isLoading={isLoading}
         onRequestChange={handleRequestChange}
         onBodyChange={handleBodyChange}
         onSubmitRequest={handleSubmit}
