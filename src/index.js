@@ -2,7 +2,11 @@ import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createHashRouter, RouterProvider, Navigate } from "react-router-dom";
 import "@cloudscape-design/global-styles/index.css";
-import { ApiKeyProvider } from "./components/ApiKeyProvider";
+import '@aws-amplify/ui-react/styles.css'
+import { Authenticator } from '@aws-amplify/ui-react';
+import { authComponents, setVocabularies } from "./components/auth-config";
+
+import { ApiKeyProvider, AuthContext } from "./components/Contexts";
 import { apiDetailArray, mailSendSampleArray } from "./generate-metadata"
 import SendGridApiClient from './components/SendGridApiClient';
 import CustomApiClient from './components/CustomApiClient';
@@ -83,13 +87,20 @@ const router = createHashRouter([
   },
 ]);
 
+setVocabularies();
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement);
 
 root.render(
 <StrictMode>
-  <ApiKeyProvider>
-    <RouterProvider router={router} />
-  </ApiKeyProvider>
+  <Authenticator hideSignUp={true} loginMechanisms={['email']} components={authComponents}>
+    {({ signOut, user }) => (
+      <AuthContext.Provider value={{ signOut, user }}>
+        <ApiKeyProvider>
+          <RouterProvider router={router} />
+        </ApiKeyProvider>
+      </AuthContext.Provider>
+    )}
+  </Authenticator>
 </StrictMode>
 );

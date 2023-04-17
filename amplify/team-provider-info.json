@@ -20,6 +20,9 @@
       },
       "api": {
         "httpClient": {}
+      },
+      "auth": {
+        "sendgridapiclientfbeabdd2": {}
       }
     }
   }

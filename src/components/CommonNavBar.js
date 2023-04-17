@@ -3,12 +3,12 @@ import { Outlet, useLocation, Navigate } from "react-router-dom";
 
 import ApiKeyMordal from "./ApiKeyModal";
 import NavigationBar from "./NavigationBar";
-import { ApiKeyContext } from "./ApiKeyProvider";
+import { AuthContext } from "./Contexts";
 
 export default function Root() {
   const location = useLocation();
 
-  const { apiKey, setApiKey } = useContext(ApiKeyContext);
+  const { user, signOut } = useContext(AuthContext);
   const [viewApIkeyModal, setViewApIkeyModal] = useState(false);
 
   const handleViewApiKeyMordal = () => {
@@ -21,11 +21,12 @@ export default function Root() {
     <>
       <NavigationBar
         onViewApiKeyMordal={handleViewApiKeyMordal}
+        user={user}
+        signOut={signOut}
       />
       <ApiKeyMordal
         visible={viewApIkeyModal}
-        apiKey={apiKey}
-        onChangeApiKey={(value) => setApiKey(value)}
+        user={user}
         onDismissApiKeyMordal={() => setViewApIkeyModal(false)}  
       />
       <div id="menu">

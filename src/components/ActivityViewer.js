@@ -12,12 +12,13 @@ import {
   Pagination,
   Popover,
   PropertyFilter,
+  Select,
   SideNavigation,
   SpaceBetween,
   StatusIndicator,
   Table
 } from "@cloudscape-design/components";
-import { ApiKeyContext } from "./ApiKeyProvider";
+import { ApiKeyContext } from "./Contexts";
 import MenuSideNavigation from "./MenuSideNavigation";
 import { 
   PAGE_SIZE_OPTIONS, 
@@ -107,7 +108,7 @@ const dateOptions = {
 };
 
 export default function ActivityViewer () {
-  const { apiKey, setApiKey } = useContext(ApiKeyContext);
+  const { apiKey, setApiKey, selectedKey, setSelectedKey } = useContext(ApiKeyContext);
   const [preferences, setPreferences] = useState(DEFAULT_PREFERENCES);
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -120,7 +121,7 @@ export default function ActivityViewer () {
     const err = new Error();
     try {
       const headers = {
-        "Authorization": `Bearer ${apiKey}`,
+        "Authorization": `Bearer ${selectedKey.value}`,
         "Content-Type": "application/json"
       }
       const endpointUrl = new URL("https://api.sendgrid.com/v3/email_activity");
@@ -209,27 +210,36 @@ export default function ActivityViewer () {
             <Header
               description="Email Activityの表示検索ツール"
               counter={`(${data.length})`}
-              actions={
-                
+              actions={                
                   <FormField
                     label="API Key"
-                    errorText={apiKey.match(/^SG\.[^.]+\.[^.]+$/)? "" : "Set API key in menu bar."}
+                    errorText={selectedKey ? "" : "No key selected"}
                   >
                     <SpaceBetween direction="horizontal" size="m">
-                    <Popover
-                      dismissButton={false}
-                      size="small"
-                      triggerType="custom"
-                      content={
-                        <StatusIndicator type="info">Set in menu bar</StatusIndicator>
-                      }
-                    >
-                      <Input value={apiKey} disabled/>
-                    </Popover>
+                    {apiKey.length === 0 ?
+                      <Popover
+                        dismissButton={false}
+                        size="small"
+                        triggerType="custom"
+                        content={
+                          <StatusIndicator type="info">Set in menu bar</StatusIndicator>
+                        }
+                      >
+                        <Select value={null} placeholder="Register a key" disabled/>
+                      </Popover>
+                    :
+                      <Select
+                        selectedOption={selectedKey}
+                        onChange={({ detail }) => setSelectedKey(detail.selectedOption)}
+                        options={apiKey}
+                        selectedAriaLabel="Selected"
+                        placeholder="Choose a key"
+                      />
+                    }
                     <Button
                       variant="primary"
                       onClick={handleSubmit}
-                      disabled={!apiKey.match(/^SG\.[^.]+\.[^.]+$/)} 
+                      disabled={!selectedKey} 
                       loading={isLoading}
                     >
                       Fetch data
