@@ -26,10 +26,14 @@ import {
   Container,
   ContentLayout,
   Flashbar,
+  FormField,
   Grid,
   Header,
   Input,
+  Select,
   SpaceBetween,
+  StatusIndicator,
+  Popover,
   Tabs,
 } from "@cloudscape-design/components";
 
@@ -38,12 +42,12 @@ import DebugContainer from "./DebugContainer";
 import RequestForm from "./RequestForm";
 import ApiSideNavigation from "./ApiSideNavigation";
 import { apiSearchItemsArray } from "../generate-metadata"
-import { ApiKeyContext } from "./ApiKeyProvider";
+import { ApiKeyContext } from "./Contexts";
 
 export default function SendGridApiClient() {
 
   const api = useLoaderData();
-  const { apiKey, setApiKey } = useContext(ApiKeyContext);
+  const { apiKey, setApiKey, selectedKey, setSelectedKey } = useContext(ApiKeyContext);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -55,7 +59,7 @@ export default function SendGridApiClient() {
     urlEncoded: "",
     method: { value: "GET" },
     headers: [
-      { name: "Authorization", value: `Bearer ${apiKey}`, included: true, canEditKey: false, canDelete: false },
+      { name: "Authorization", value: "Bearer KEY", included: true, canEditKey: false, canDelete: false },
       { name: "Content-Type", value: "application/json", included: true, canEditKey: false, canDelete: false }
     ],
     queryParams: [],
@@ -100,7 +104,7 @@ export default function SendGridApiClient() {
     const queries = [];
     const pathParam = [];
     const headers = [
-      { name: "Authorization", value: `Bearer ${apiKey}`, included: true, canEditKey: false, canDelete: false },
+      { name: "Authorization", value: selectedKey ? `Bearer ${selectedKey.value}` : "Bearer KEY", included: true, canEditKey: false, canDelete: false },
       { name: "Content-Type", value: "application/json", included: true, canEditKey: false, canDelete: false }    
     ];
     if ('parameters' in api) {
@@ -155,14 +159,14 @@ export default function SendGridApiClient() {
     if (request.headers[0].name == "Authorization") {
       newHeaders[0] = { 
         name: "Authorization", 
-        value: `Bearer ${apiKey}`, 
+        value: selectedKey ? `Bearer ${selectedKey.value}` : "Bearer KEY", 
         included: true, 
         canEditKey: false, 
         canDelete: false 
       }
     }
     handleRequestChange("headers", newHeaders);
-  }, [apiKey]);
+  }, [selectedKey]);
 
   useEffect(() => {
     try {
@@ -212,7 +216,11 @@ export default function SendGridApiClient() {
     let curl = `curl -i --request ${request.method.value} \\\n--url ${request.urlEncoded} \\\n`;
     for (const header of request.headers) {
       if (header.included) {
-        curl += `--header "${header.name}: ${header.value}" \\\n`
+        if (header.name === "Authorization") {
+          curl += selectedKey ? `--header "Authorization: Bearer $${selectedKey.label}" \\\n` : `--header "Authorization: Bearer $KEY" \\\n`
+        } else {
+          curl += `--header "${header.name}: ${header.value}" \\\n`
+        }
       }
     }
     if (request.bodyInput !== "") {
@@ -221,7 +229,7 @@ export default function SendGridApiClient() {
       curl = curl.trim().slice(0,-1);
     }
     handleRequestChange("curl", curl);
-  }, [request.urlEncoded, request.headers, request.queryParams, request.pathParam, request.body, apiKey]);
+  }, [request.urlEncoded, request.headers, request.queryParams, request.pathParam, request.body, selectedKey]);
 
   useEffect(() => {
     if (request.bodyInput !== "") {
@@ -362,6 +370,7 @@ export default function SendGridApiClient() {
           request={request}
           activeTab={activeTab}
           isLoading={isLoading}
+          canSubmit={selectedKey}
           onSetActiveTab={(value) => setActiveTab(value)}
           onRequestChange={handleRequestChange}
           onBodyChange={handleBodyChange}
@@ -426,6 +435,33 @@ export default function SendGridApiClient() {
               <Header
                 variant="h1"
                 description="SendGrid Web APIのエンドポイントの検索とリクエストツール"
+                actions={
+                  <FormField
+                    label="API Key"
+                    errorText={selectedKey ? "" : "No key selected"}
+                  >
+                    {apiKey.length === 0 ?
+                      <Popover
+                        dismissButton={false}
+                        size="small"
+                        triggerType="custom"
+                        content={
+                          <StatusIndicator type="info">Set in menu bar</StatusIndicator>
+                        }
+                      >
+                        <Select value={null} placeholder="Register a key" disabled/>
+                      </Popover>
+                    :
+                      <Select
+                        selectedOption={selectedKey}
+                        onChange={({ detail }) => setSelectedKey(detail.selectedOption)}
+                        options={apiKey}
+                        selectedAriaLabel="Selected"
+                        placeholder="Choose a key"
+                      />
+                    }
+                  </FormField>
+                }                
               >
                 SendGrid API Client
               </Header>
