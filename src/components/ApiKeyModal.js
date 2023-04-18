@@ -88,12 +88,6 @@ export default function ApiKeyMordal(props) {
     fetchApiKeys();
   }, []);
 
-  // useEffect(() => {
-  //   if (props.visible) {
-  //     fetchApiKeys();
-  //   }
-  // }, [props.visible]);
-
   const generateId = (length) => {
     let result = '';
     const characters = 'abcdef0123456789';
@@ -163,19 +157,6 @@ export default function ApiKeyMordal(props) {
     []
   );
 
-  // const handleItemChange = (modifiedItem, modifiedColumn, newValue) => {
-  //   const updatedItems = tmpApiKey.map(item => {
-  //     if (modifiedColumn.id === "value" && item.name === modifiedItem.name && item.id === modifiedItem.id) {
-  //       return {...item, value: newValue};
-  //     } else if (modifiedColumn.id === "name" && item.value === modifiedItem.value && item.id === modifiedItem.id) {
-  //       return {...item, name: newValue};
-  //     }
-  //     return item;
-  //   });
-  //   setTmpApiKey(updatedItems);
-  //   console.log(tmpApiKey);
-  // }
-
   const handleAddItem = useCallback(() => {
     const newItem = {
       id: generateId(10),
@@ -193,13 +174,6 @@ export default function ApiKeyMordal(props) {
     });
   }, []);
   
-  // const handleDeleteItem = () => {
-  //   const targetItem = selectedItems[0];
-  //   const updatedItems = tmpApiKey.filter(item => !(item.id === targetItem.id &&item.name === targetItem.name && item.value === targetItem.value));
-  //   setTmpApiKey(updatedItems);
-  //   setSelectedItems([]);
-  // }
-
   const additionalInfo = useMemo(() => `You can add ${keyLimit - tmpApiKey.length} more keys.`, [tmpApiKey.length]);
 
   return (
@@ -234,122 +208,6 @@ export default function ApiKeyMordal(props) {
         </Header>
       }
     >
-      {/* <Table
-        onSelectionChange={({ detail }) =>
-        setSelectedItems(detail.selectedItems)
-        }
-        selectedItems={selectedItems}
-        columnDefinitions={[
-          {
-            id: "name",
-            header: "name",
-            // minWidth: 176,
-            cell: item => {
-              return item.name;
-            },
-            editConfig: {
-              ariaLabel: "Name",
-              editIconAriaLabel: "editable",
-              errorIconAriaLabel: "Name Error",
-              editingCell: (
-                item,
-                { currentValue, setValue }
-              ) => {
-                return (
-                  <Input
-                    autoFocus={true}
-                    value={currentValue ?? item.name}
-                    onChange={event =>
-                      setValue(event.detail.value)
-                    }
-                  />
-                );
-              }
-            }
-          },
-          {
-            id: "value",
-            header: "value",
-            minWidth: 176,
-            maxWidth: 500,
-            cell: item => {
-              return item.value;
-            },
-            editConfig: {
-              ariaLabel: "Value",
-              editIconAriaLabel: "editable",
-              errorIconAriaLabel: "Value Error",
-              validation: (item, value) => {
-                if (value) {
-                  return value.match(/^SG\..{22}\..{43}$/) ? undefined : "Format error"
-                }
-              },
-              editingCell: (
-                item,
-                { currentValue, setValue }
-              ) => {
-                return (
-                  <Input
-                    autoFocus={true}
-                    value={currentValue ?? item.value}
-                    onChange={event =>
-                      setValue(event.detail.value)
-                    }
-                  />
-                );
-              }
-            }
-          }
-        ]}
-        items={tmpApiKey}
-        loading={loadingKeys}
-        loadingText="Loading..."
-        submitEdit={(item, column, newValue) => handleItemChange(item, column, newValue)}
-        trackBy="id"
-        variant="embedded"
-        selectionType="single"
-        empty={
-          <Box textAlign="center" color="inherit">
-            <b>No keys</b>
-            <Box
-              padding={{ bottom: "s" }}
-              variant="p"
-              color="inherit"
-            >
-              No keys to display.
-            </Box>
-            <Button
-             onClick={handleAddItem}
-             >
-              Add first key
-            </Button>
-          </Box>
-        }
-        header={
-          <Header
-            actions={
-              <SpaceBetween direction="horizontal" size="xxs">
-                <Button
-                  variant="link"
-                  iconAlign="left"
-                  iconName="remove"
-                  onClick={handleDeleteItem}
-                  disabled={selectedItems.length === 0}
-                >
-                  Delete selected key
-                </Button>
-                <Button
-                  iconAlign="left"
-                  iconName="add-plus"
-                  onClick={handleAddItem}
-                >
-                  Add new key
-                </Button>
-              </SpaceBetween>
-            }
-          ></Header>
-          }
-      /> */}
       {loadingKeys && <Spinner size="big" />}
       {!loadingKeys && 
         <AttributeEditor
