@@ -103,7 +103,6 @@ export default function NavigationBar(props) {
                     type: "menu-dropdown",
                     description: attributes.email,
                     iconName: "user-profile",
-                    disabled: process.env.ENV == "DEV" ? false : true,
                     onItemClick: handleSettingsItemClick,
                     items: [
                         {
