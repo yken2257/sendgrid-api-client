@@ -19,11 +19,11 @@ import {
   SpaceBetween,
   StatusIndicator
 } from "@cloudscape-design/components";
-import { ApiKeyContext } from "./ApiKeyProvider";
+import { ApiKeyContext } from "./Contexts";
 import MenuSideNavigation from "./MenuSideNavigation";
 
 export default function StatsViewer () {
-  const { apiKey, setApiKey } = useContext(ApiKeyContext);
+  const { apiKey, setApiKey, selectedKey, setSelectedKey } = useContext(ApiKeyContext);
   const [aggregation, setAggrigation] = useState({"label": "Aggregated by day", "value": "day"});
   const [dateInput, setDateInput] = useState(undefined);
   const [startDate, setStartDate] = useState(undefined);
@@ -70,7 +70,7 @@ export default function StatsViewer () {
     const err = new Error();
     try {
       const headers = {
-        "Authorization": `Bearer ${apiKey}`,
+        "Authorization": `Bearer ${selectedKey.value}`,
         "Content-Type": "application/json"
       }
       const queries = {
@@ -242,18 +242,28 @@ export default function StatsViewer () {
             actions={
               <FormField
                 label="API Key"
-                errorText={apiKey.match(/^SG\.[^.]+\.[^.]+$/)? "" : "Set API key in menu bar."}
+                errorText={selectedKey ? "" : "No key selected"}
               >
-                <Popover
-                  dismissButton={false}
-                  size="small"
-                  triggerType="custom"
-                  content={
-                    <StatusIndicator type="info">Set in menu bar</StatusIndicator>
-                  }
-                >
-                  <Input value={apiKey} disabled/>
-                </Popover>
+                {apiKey.length === 0 ?
+                  <Popover
+                    dismissButton={false}
+                    size="small"
+                    triggerType="custom"
+                    content={
+                      <StatusIndicator type="info">Set in menu bar</StatusIndicator>
+                    }
+                  >
+                    <Select value={null} placeholder="Register a key" disabled/>
+                  </Popover>
+                :
+                  <Select
+                    selectedOption={selectedKey}
+                    onChange={({ detail }) => setSelectedKey(detail.selectedOption)}
+                    options={apiKey}
+                    selectedAriaLabel="Selected"
+                    placeholder="Choose a key"
+                  />
+                }
               </FormField>
             }
           >
@@ -268,7 +278,7 @@ export default function StatsViewer () {
                 <Button 
                   variant="primary"
                   onClick={handleSubmit}
-                  disabled={!apiKey.match(/^SG\.[^.]+\.[^.]+$/) || !startDate}
+                  disabled={!selectedKey || !startDate}
                   loading={isLoading}
                 >
                   Fetch & Draw

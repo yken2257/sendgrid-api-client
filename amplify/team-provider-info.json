@@ -1,4 +1,28 @@
 {
+  "stg": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-sendgridapiclient-stg-05157-authRole",
+      "UnauthRoleArn": "arn:aws:iam::357294642993:role/amplify-sendgridapiclient-stg-05157-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::357294642993:role/amplify-sendgridapiclient-stg-05157-authRole",
+      "Region": "ap-northeast-1",
+      "DeploymentBucketName": "amplify-sendgridapiclient-stg-05157-deployment",
+      "UnauthRoleName": "amplify-sendgridapiclient-stg-05157-unauthRole",
+      "StackName": "amplify-sendgridapiclient-stg-05157",
+      "StackId": "arn:aws:cloudformation:ap-northeast-1:357294642993:stack/amplify-sendgridapiclient-stg-05157/3878f9a0-dd83-11ed-ade1-068402439de3",
+      "AmplifyAppId": "dwu9z53aalc51"
+    },
+    "categories": {
+      "function": {
+        "SupportHelperHttpClient": {
+          "deploymentBucketName": "amplify-sendgridapiclient-stg-05157-deployment",
+          "s3Key": "amplify-builds/SupportHelperHttpClient-436c427454686c734b79-build.zip"
+        }
+      },
+      "auth": {
+        "sendgridapiclientfbeabdd2": {}
+      }
+    }
+  },
   "dev": {
     "awscloudformation": {
       "AuthRoleName": "amplify-sendgridapiclient-dev-51844-authRole",
@@ -20,6 +44,37 @@
       },
       "api": {
         "httpClient": {}
+      },
+      "auth": {
+        "sendgridapiclientfbeabdd2": {}
+      }
+    }
+  },
+  "prd": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-sendgridapiclient-prd-223426-authRole",
+      "UnauthRoleArn": "arn:aws:iam::357294642993:role/amplify-sendgridapiclient-prd-223426-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::357294642993:role/amplify-sendgridapiclient-prd-223426-authRole",
+      "Region": "ap-northeast-1",
+      "DeploymentBucketName": "amplify-sendgridapiclient-prd-223426-deployment",
+      "UnauthRoleName": "amplify-sendgridapiclient-prd-223426-unauthRole",
+      "StackName": "amplify-sendgridapiclient-prd-223426",
+      "StackId": "arn:aws:cloudformation:ap-northeast-1:357294642993:stack/amplify-sendgridapiclient-prd-223426/320c6a50-de39-11ed-b488-06acfbf6207b",
+      "AmplifyAppId": "dwu9z53aalc51"
+    },
+    "categories": {
+      "auth": {
+        "sendgridapiclientfbeabdd2": {}
+      },
+      "function": {
+        "SupportHelperHttpClient": {
+          "deploymentBucketName": "amplify-sendgridapiclient-prd-223426-deployment",
+          "s3Key": "amplify-builds/SupportHelperHttpClient-697078335a39316a7779-build.zip"
+        }
+      },
+      "api": {
+        "httpClient": {},
+        "sendgridapiclient": {}
       }
     }
   }

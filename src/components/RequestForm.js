@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import AceEditor from 'react-ace';
 import ace from "ace-builds/src-noconflict/ace";
 import 'ace-builds/webpack-resolver'
@@ -29,13 +29,16 @@ import {
 ace.config.set("useStrictCSP", true);
 ace.config.set("loadWorkerFromBlob", false);
 
+import { ApiKeyContext } from "./Contexts";
+
 export default function RequestForm(props) {
   const api = props.api;
   const headers = props.request.headers;
   const queryParams = props.request.queryParams;
-  const [activeTab, setActiveTab] = React.useState("header");
-  const [preferences, setPreferences] = React.useState(undefined);
-  const [editorHeight, setEditorHeight] = React.useState();
+  const [activeTab, setActiveTab] = useState("header");
+  const [preferences, setPreferences] = useState(undefined);
+  const [editorHeight, setEditorHeight] = useState();
+  const { selectedKey } = useContext(ApiKeyContext);
 
   useEffect(()=> {
     setActiveTab("header");
@@ -89,12 +92,31 @@ export default function RequestForm(props) {
           onChange={handleParamChange(index, param, param_name, false)}
           readOnly={!pair.canEditKey}
         />
-        <Input
-          name="value"
-          value={pair.value}
-          onChange={handleParamChange(index, param, param_name, true)}
-          disabled={pair.name=="Authorization"}
-        />
+        {pair.name === "Authorization" ?
+          <Popover
+            dismissButton={false}
+            position="right"
+            size="small"
+            triggerType="custom"
+            content={
+              <StatusIndicator type="info">Set from header</StatusIndicator>
+            }
+          >
+            <Input
+                name="value"
+                value={pair.value}
+                onChange={handleParamChange(index, param, param_name, true)}
+                disabled
+                invalid={!selectedKey}
+              />
+          </Popover>
+        :
+          <Input
+            name="value"
+            value={pair.value}
+            onChange={handleParamChange(index, param, param_name, true)}
+          />
+        }
         {pair.canDelete && 
           <Button
             iconName="status-negative"
@@ -111,21 +133,6 @@ export default function RequestForm(props) {
         >
           <div style={{position: "relative", top: 5}}>
             <Button iconName="status-info" variant="inline-icon" />
-          </div>
-        </Popover>
-        }
-        {pair.name == "Authorization" &&
-        <Popover
-          dismissButton={false}
-          position="right"
-          size="small"
-          triggerType="custom"
-          content={
-            <StatusIndicator type="info">Set your API key from menu bar</StatusIndicator>
-          }
-        >
-          <div style={{position: "relative", top: 5}}>
-            <Button iconName="suggestions" variant="inline-icon" />
           </div>
         </Popover>
         }
@@ -152,7 +159,7 @@ export default function RequestForm(props) {
     }
   }
 
-  const canSubmit = (props.request.isUrlValid && props.request.isBodyValid && isPathParamFilled(props.request.pathParam))
+  const canSubmit = (props.request.isUrlValid && props.request.isBodyValid && isPathParamFilled(props.request.pathParam) && props.canSubmit)
 
   const submitButton = () => (
     <Box float="right">

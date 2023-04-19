@@ -10,8 +10,8 @@ import {
   Form,
   FormField,
   Header,
-  Input,
   Popover,
+  Select,
   SpaceBetween,
   StatusIndicator
 } from "@cloudscape-design/components";
@@ -22,7 +22,7 @@ Amplify.configure(awsconfig);
 
 import ResponseContainer from "./ResponseContainer";
 import MailSendSideNavigation from "./MailSendSideNavigation";
-import { ApiKeyContext } from "./ApiKeyProvider";
+import { ApiKeyContext, AuthContext } from "./Contexts";
 
 import ace from "ace-builds/src-noconflict/ace";
 import 'ace-builds/webpack-resolver'
@@ -37,7 +37,8 @@ ace.config.set("loadWorkerFromBlob", false);
 export default function MailSendHelper () {
   const sample = useLoaderData();
   const location = useLocation();
-  const { apiKey, setApiKey } = useContext(ApiKeyContext);
+  const { apiKey, setApiKey, selectedKey, setSelectedKey } = useContext(ApiKeyContext);
+  const { user } = useContext(AuthContext);
   const [requestJson, setRequestJson] = useState(JSON.stringify(sample.request, null, 4));
   const [response, setResponse] = useState();
   const [isLoading, setIsLoading] = useState(false);
@@ -49,16 +50,16 @@ export default function MailSendHelper () {
   const [curl, setCurl] = useState("");
 
   useEffect(() => {
-    setRequestJson(JSON.stringify(sample.request, null, 4))
+    setRequestJson(JSON.stringify(sample.request, null, 4).replace('koken@kke.co.jp', user.attributes.email))
     setResponse();
   }, [location.pathname]);
 
   useEffect(() => {
     let curlStr = `curl -i --request POST \\\n--url https://api.sendgrid.com/v3/mail/send \\\n`;
-    curlStr += `--header "Authorization: Bearer ${apiKey}" \\\n`
+    curlStr += selectedKey ? `--header "Authorization: Bearer $${selectedKey.label}" \\\n` : `--header "Authorization: Bearer $KEY" \\\n`
     curlStr += `--header "Content-Type: application/json" \\\n`
     curlStr += `--data '${requestJson}'` 
-    setCurl(curlStr);
+    setCurl(curlStr);  
   }, [requestJson]);
 
   const copyToClipboard = async (text) => {
@@ -66,7 +67,7 @@ export default function MailSendHelper () {
   };
 
   const ApiSubmitButton = () => {
-    if (apiKey.match(/^SG\.[^.]+\.[^.]+$/)) {
+    if (selectedKey) {
       return (
         <Button
           variant="primary"
@@ -86,7 +87,7 @@ export default function MailSendHelper () {
           triggerType="custom"
           content={
             <StatusIndicator type="warning">
-              Set API key in menu bar
+              Set API key
             </StatusIndicator>
           }
         >
@@ -125,7 +126,7 @@ export default function MailSendHelper () {
     setIsLoading(true);
     try {
       const headers = {
-        "Authorization": `Bearer ${apiKey}`,
+        "Authorization": `Bearer ${selectedKey.value}`,
         "Content-Type": "application/json"
       }
       const endpointUrl = new URL("https://api.sendgrid.com/v3/mail/send");
@@ -178,18 +179,28 @@ export default function MailSendHelper () {
             actions={
               <FormField
                 label="API Key"
-                errorText={apiKey.match(/^SG\.[^.]+\.[^.]+$/)? "" : "Set API key in menu bar."}
+                errorText={selectedKey ? "" : "No key selected"}
               >
-                <Popover
-                  dismissButton={false}
-                  size="small"
-                  triggerType="custom"
-                  content={
-                    <StatusIndicator type="info">Set in menu bar</StatusIndicator>
-                  }
-                >
-                  <Input value={apiKey} disabled/>
-                </Popover>
+                {apiKey.length === 0 ?
+                  <Popover
+                    dismissButton={false}
+                    size="small"
+                    triggerType="custom"
+                    content={
+                      <StatusIndicator type="info">Set in menu bar</StatusIndicator>
+                    }
+                  >
+                    <Select value={null} placeholder="Register a key" disabled/>
+                  </Popover>
+                :
+                  <Select
+                    selectedOption={selectedKey}
+                    onChange={({ detail }) => setSelectedKey(detail.selectedOption)}
+                    options={apiKey}
+                    selectedAriaLabel="Selected"
+                    placeholder="Choose a key"
+                  />
+                }
               </FormField>
             }
           >

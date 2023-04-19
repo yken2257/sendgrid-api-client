@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const Dotenv = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+// const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 module.exports = () => {
   // const env = dotenv.config().parsed;
@@ -23,6 +24,14 @@ module.exports = () => {
         {
           test: /\.css$/,
           use: ['style-loader', 'css-loader']
+        },
+        {
+          test: /\.mjs$/,
+          include: /node_modules/,
+          type: 'javascript/auto',
+          resolve: {
+            fullySpecified: false
+          }
         }
       ],
     },
@@ -44,7 +53,8 @@ module.exports = () => {
         https: 'https-browserify',
         stream: "stream-browserify",
         crypto: "crypto-browserify",
-        path: "path-browserify"
+        path: "path-browserify",
+        // process: 'process/browser',
       }
     },
     plugins: [
@@ -61,6 +71,7 @@ module.exports = () => {
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
       }),
+      // new NodePolyfillPlugin(),
     ],
   };
 };
