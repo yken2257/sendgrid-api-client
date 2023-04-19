@@ -28,7 +28,7 @@ export const authComponents = {
       <View textAlign="center">
         <Flex justifyContent="center" padding={tokens.space.medium}>
           <Text>
-            初回ログインは管理者にご連絡ください。
+            初回ログイン時やお困りの際は管理者にご連絡ください。
           </Text>
         </Flex>
       </View>

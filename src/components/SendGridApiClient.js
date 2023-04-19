@@ -52,7 +52,6 @@ export default function SendGridApiClient() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchText, setSearchText] = useState("");
-  const [viewApIkeyModal, setViewApIkeyModal] = useState(false);
   const [preferences, setPreferences] = React.useState(undefined);
   const [request, setRequest] = useState({
     urlInput: "",
@@ -305,10 +304,6 @@ export default function SendGridApiClient() {
     setIsLoading(false);
   };
 
-  const handleViewApiKeyMordal = () => {
-    setViewApIkeyModal(true);
-  }
-
   const copyToClipboard = async (text) => {
     try {
       const json = JSON.parse(text);
@@ -426,7 +421,7 @@ export default function SendGridApiClient() {
   return (
     <AppLayout
       toolsHide={true}
-      navigation={<ApiSideNavigation onViewApiKeyMordal={handleViewApiKeyMordal} />}
+      navigation={<ApiSideNavigation/>}
       content={
         <ContentLayout
           disableOverlap
@@ -449,7 +444,11 @@ export default function SendGridApiClient() {
                           <StatusIndicator type="info">Set in menu bar</StatusIndicator>
                         }
                       >
-                        <Select value={null} placeholder="Register a key" disabled/>
+                        <Input 
+                          value={null} 
+                          placeholder="Register your API key" 
+                          disabled
+                        />
                       </Popover>
                     :
                       <Select
@@ -457,7 +456,7 @@ export default function SendGridApiClient() {
                         onChange={({ detail }) => setSelectedKey(detail.selectedOption)}
                         options={apiKey}
                         selectedAriaLabel="Selected"
-                        placeholder="Choose a key"
+                        placeholder="Choose your API key"
                       />
                     }
                   </FormField>
