@@ -253,7 +253,7 @@ export default function StatsViewer () {
                       <StatusIndicator type="info">Set in menu bar</StatusIndicator>
                     }
                   >
-                    <Select value={null} placeholder="Register a key" disabled/>
+                    <Select value={null} placeholder="Register your API key" disabled/>
                   </Popover>
                 :
                   <Select
@@ -261,7 +261,7 @@ export default function StatsViewer () {
                     onChange={({ detail }) => setSelectedKey(detail.selectedOption)}
                     options={apiKey}
                     selectedAriaLabel="Selected"
-                    placeholder="Choose a key"
+                    placeholder="Choose your API key"
                   />
                 }
               </FormField>
